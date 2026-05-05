@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Device Tracking</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+
+    <style>
+        body {
+            margin: 0;
+            background: #eef2f6;
+        }
+
+        /* MAP CONTAINER WITH ROUNDED CORNERS */
+        .map-container {
+            position: relative;
+            height: 95vh;
+            margin: 10px;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+
+        /* LOGO (TOP LEFT) */
+        .logo {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            z-index: 1000;
+            padding: 6px 10px;
+            border-radius: 10px;
+            /*box-shadow: 0 4px 10px rgba(0,0,0,0.2);*/
+        }
+
+        .logo img {
+            height: 40px;
+        }
+
+        /* BUTTONS (TOP RIGHT) */
+        .top-buttons {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            z-index: 1000;
+            display: flex;
+            gap: 10px;
+        }
+
+        .top-buttons button {
+            border-radius: 20px;
+            padding: 6px 14px;
+            border: none;
+            background: white;
+            font-weight: 500;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            cursor: pointer;
+        }
+
+        .top-buttons button:hover {
+            background: #007bff;
+            color: white;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="container-fluid">
+    <div class="map-container">
+
+        <!-- LOGO -->
+        <div class="logo">
+            <!-- Django static example -->
+           
+             <img src="/static/images/VitalitySeaWaysLLP.png">
+        </div>
+
+        <!-- BUTTONS -->
+        <div class="top-buttons">
+            <button onclick="alert('Dashboard')">Dashboard</button>
+            <button onclick="window.location.href='{% url 'allmaps' %}';">MAP Vessels</button>
+            <button onclick="alert('Alert')">Alert</button>
+            <button onclick="window.location.href='{% url 'login' %}';">
+                Login
+            </button>
+        </div>
+
+        <!-- MAP -->
+        <div id="map"></div>
+
+    </div>
+</div>
+
+<!-- Leaflet -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+    var map = L.map('map', {
+        zoomControl: true
+    }).setView([16.5062, 80.6480], 10);
+
+    L.control.zoom({
+        position: 'bottomleft'
+    }).addTo(map);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+    // SHIP ICON
+    var shipIcon = L.icon({
+        iconUrl: 'https://cdn-icons-png.flaticon.com/512/68/68408.png',
+        iconSize: [30, 30],
+        iconAnchor: [15, 15]
+    });
+
+    var markers = [];
+
+    // ✅ Marker storage
+    var markers = [];
+
+    function fetchLocation() {
+        fetch('https://shiptrackingapi-787201059405.asia-south2.run.app/tracking')
+            .then(res => {
+                if (!res.ok) throw new Error("API error");
+                return res.json();
+            })
+            .then(data => {
+
+                console.log("API DATA:", data);
+
+                // 🔹 Clear old markers
+                markers.forEach(m => map.removeLayer(m));
+                markers = [];
+
+                let bounds = [];
+
+                // 🔹 Handle array
+                if (Array.isArray(data)) {
+
+                    data.forEach(v => {
+
+                        // ✅ Handle both key formats
+                        let lat = parseFloat(v.latitude ?? v.Latitude);
+                        let lng = parseFloat(v.longitude ?? v.Longitude);
+
+                        if (!isNaN(lat) && !isNaN(lng)) {
+
+                            let marker = L.marker([lat, lng], { icon: shipIcon }).addTo(map);
+
+                            // ✅ Popup info
+                            marker.bindPopup(`
+                                <b>${v.Comments || 'Vessel'}</b><br>
+                                Lat: ${lat}<br>
+                                Lng: ${lng}<br>
+                                Time: ${v.DateTime || ''}
+                            `);
+
+                            markers.push(marker);
+                            bounds.push([lat, lng]);
+
+                        } else {
+                            console.warn("Invalid coords:", v);
+                        }
+                    });
+
+                    // 🔹 Fit bounds
+                    if (bounds.length > 0) {
+                        map.fitBounds(bounds, { padding: [50, 50] });
+                    }
+                }
+
+                // 🔹 Handle single object
+                else if (data) {
+
+                    let lat = parseFloat(data.latitude ?? data.Latitude);
+                    let lng = parseFloat(data.longitude ?? data.Longitude);
+
+                    if (!isNaN(lat) && !isNaN(lng)) {
+
+                        let marker = L.marker([lat, lng], { icon: shipIcon }).addTo(map);
+
+                        marker.bindPopup(`
+                            <b>${data.Comments || 'Vessel'}</b><br>
+                            Lat: ${lat}<br>
+                            Lng: ${lng}<br>
+                            Time: ${data.DateTime || ''}
+                        `);
+
+                        markers.push(marker);
+                        /*map.setView([lat, lng], 10);*/
+
+                    } else {
+                        console.warn("Invalid single object:", data);
+                    }
+                }
+
+                else {
+                    console.warn("Unexpected format:", data);
+                }
+            })
+            .catch(err => {
+                console.error("Fetch error:", err);
+            });
+    }
+    fetchLocation();
+    setInterval(fetchLocation, 5000);
+</script>
+
+</body>
+</html>
