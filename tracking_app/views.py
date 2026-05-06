@@ -1,6 +1,7 @@
 import folium
 import json
 import os
+import requests
 from django.conf import settings
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
@@ -10,37 +11,41 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 
 def allmaps_view(request):
-    # 1. Load Vessel Data
-    vessel_files = [
-        os.path.join(settings.BASE_DIR, 'static', 'data', 'vesselA.json'),
-        #os.path.join(settings.BASE_DIR, 'static', 'data', 'vesselB.json'),
-        #os.path.join(settings.BASE_DIR, 'static', 'data', 'vesselC.json'),
-    ]
-
+    # 1. Fetch live data from API URL
+    api_url = "https://shiptrackingapi-787201059405.asia-south2.run.app/tracking/vessel"
     vessels_raw = []
-    for vf in vessel_files:
-        if os.path.exists(vf):
-            with open(vf) as f:
-                try:
-                    data = json.load(f)
-                    if isinstance(data, list):
-                        vessels_raw.extend(data)
-                except Exception:
-                    continue
+    
+    try:
+        response = requests.get(api_url, timeout=10)
+        if response.status_code == 200:
+            vessels_raw = response.json()
+    except Exception as e:
+        print(f"Error fetching API data: {e}")
+        # Fallback to local files if API fails
+        data_dir = os.path.join(settings.BASE_DIR, 'static', 'data')
+        if os.path.exists(data_dir):
+            for filename in os.listdir(data_dir):
+                if filename.startswith('vessel') and filename.endswith('.json'):
+                    with open(os.path.join(data_dir, filename)) as f:
+                        try:
+                            data = json.load(f)
+                            if isinstance(data, list): vessels_raw.extend(data)
+                            elif isinstance(data, dict): vessels_raw.append(data)
+                        except: continue
 
     if not vessels_raw:
-        return render(request, 'allmaps.html', {'map_html': "No vessel data found."})
+        return render(request, 'allmaps.html', {'map_html': "No vessel data available."})
 
     # 2. Base Map Setup
     m = folium.Map(
-        location=[17.15, 82.4], # Improved center for Kakinada cluster
-        zoom_start=11,
+        location=[17.15, 82.4],
+        zoom_start=6,
         control_scale=True,
         zoom_control=False,
         tiles=None
     )
 
-     # --- ADD ALL LAYERS ---
+       # --- ADD ALL LAYERS ---
     folium.TileLayer(
         tiles="https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",
         attr="Tiles © Esri",
@@ -76,17 +81,18 @@ def allmaps_view(request):
         show=False
     ).add_to(m)
 
+
     folium.LayerControl(position="bottomright").add_to(m)
 
-    # 3. Group and Process Routes by VesselId
+    # 3. Group and Process Routes by VesselName or ID
     routes = {}
     for v in vessels_raw:
-        v_id = v.get("VesselId") or v.get("Id") or "Vessel"
-        v_name = f"Vessel {v_id}"
+        # Prioritize VesselName for dynamic allocation, fallback to ID
+        v_name = v.get("VesselName") or f"Ship {v.get('VesselId') or v.get('Id') or 'Unknown'}"
         
         point = {
-            "lat": float(v.get("Longitude") or 16.93), # Note: In provided JSON Longitude and Latitude values seem swapped or specific to area
-            "lng": float(v.get("Latitude") or 82.26),  # Adjusting based on typical KKD coordinates
+            "lat": float(v.get("Longitude") or v.get("lat") or 16.93),
+            "lng": float(v.get("Latitude") or v.get("lng") or 82.26),
             "Comments": v.get("Comments", "-"),
             "DateTime": v.get("DateTime", "-"),
             "Speed": v.get("Speed", "-"),
@@ -102,16 +108,18 @@ def allmaps_view(request):
         routes.setdefault(v_name, []).append(point)
 
     vessel_js_array = []
-    colors = ["blue", "red", "green", "orange", "purple"]
+    # Darker color palette for markers
+    dark_colors = ["#1a237e", "#b71c1c", "#1b5e20", "#e65100", "#4a148c", "#004d40", "#212121", "#3e2723"]
+    
     for i, (name, path) in enumerate(routes.items()):
         vessel_js_array.append({
             "name": name,
-            "color": colors[i % len(colors)],
+            "color": dark_colors[i % len(dark_colors)],
             "route": path,
             "currentIndex": 0
         })
 
-    # 4. JavaScript logic for Movement + Dynamic Popup + Speed Control
+    # 4. JavaScript logic
     js_code = f"""
     <script>
     window.onload = function() {{
@@ -121,24 +129,25 @@ def allmaps_view(request):
 
         L.control.zoom({{ position: 'bottomleft' }}).addTo(map);
 
-        function getPopupHTML(pt) {{
+        function getPopupHTML(pt, vName) {{
+            let dt = pt.DateTime.includes('T') ? pt.DateTime.replace('T', ' ').split('.')[0] : pt.DateTime;
             return `
             <div style="width:180px; font-family:Arial, sans-serif; font-size:11px; color:#333;">
                 <div style="font-weight:bold; border-bottom:1px solid #ccc; padding-bottom:4px; margin-bottom:6px; color:#2f4f8f; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-                    ${{pt.Comments}}
+                    ${{vName}}
                 </div>
-                <div style="margin-bottom:5px; font-size:10px; color:#666;">🕒 ${{pt.DateTime.replace('T', ' ').split('.')[0]}}</div>
+                <div style="margin-bottom:5px; font-size:10px; color:#c53030; font-weight:bold;">🕒 ${{dt}}</div>
                 <div style="display:flex; justify-content:space-between; margin-bottom:3px;">
                     <span>Speed: <b>${{pt.Speed}}</b></span>
-                    <span>Battery: <b>${{pt.Battery}}V</b></span>
+                    <span>Bat: <b>${{pt.Battery}}V</b></span>
                 </div>
                 <div style="display:flex; justify-content:space-between; margin-bottom:3px;">
-                    <span>Fuel1: <b>${{pt.Fuel1}}L</b></span>
-                    <span>Fuel2: <b>${{pt.Fuel2}}L</b></span>
+                    <span>F1: <b>${{pt.Fuel1}}L</b></span>
+                    <span>F2: <b>${{pt.Fuel2}}L</b></span>
                 </div>
                 <div style="display:flex; justify-content:space-between; margin-bottom:3px;">
-                    <span>RPM1: <b>${{pt.RPM1}}</b></span>
-                    <span>RPM2: <b>${{pt.RPM2}}</b></span>
+                    <span>R1: <b>${{pt.RPM1}}</b></span>
+                    <span>R2: <b>${{pt.RPM2}}</b></span>
                 </div>
                 <div style="font-size:10px; margin-top:5px; border-top:1px dotted #ccc; padding-top:4px;">
                     E1: <span style="color:${{pt.Eng1RunStatus==='Running'?'green':'red'}}">${{pt.Eng1RunStatus}}</span> | 
@@ -149,8 +158,8 @@ def allmaps_view(request):
 
         function createIcon(color) {{
             return L.divIcon({{
-                html: `<div style="width: 0; height: 0; border-left: 7px solid transparent; border-right: 7px solid transparent; border-bottom: 14px solid ${{color}}; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.4));"></div>`,
-                className: "", iconSize: [14, 14], iconAnchor: [7, 7]
+                html: `<div style="width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-bottom: 16px solid ${{color}}; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));"></div>`,
+                className: "", iconSize: [16, 16], iconAnchor: [8, 8]
             }});
         }}
 
@@ -159,8 +168,7 @@ def allmaps_view(request):
             let start = v.route[0];
             let marker = L.marker([start.lat, start.lng], {{ icon: createIcon(v.color) }}).addTo(map);
             
-            // Bind small popup with minimal padding
-            marker.bindPopup(getPopupHTML(start), {{
+            marker.bindPopup(getPopupHTML(start, v.name), {{
                 maxWidth: 190,
                 minWidth: 180,
                 autoPan: true
@@ -183,8 +191,9 @@ def allmaps_view(request):
                     let next = v.route[v.currentIndex];
                     obj.marker.setLatLng([next.lat, next.lng]);
                     
-                    // Always update popup content so it's fresh when opened
-                    obj.marker.setPopupContent(getPopupHTML(next));
+                    if (obj.marker.getPopup()) {{
+                        obj.marker.setPopupContent(getPopupHTML(next, v.name));
+                    }}
                 }});
             }}, moveInterval);
         }};
