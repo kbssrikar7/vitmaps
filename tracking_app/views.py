@@ -15,46 +15,59 @@ def allmaps_view(request):
     with open(file_path) as f:
         vessels = json.load(f)
 
-    # Base map (default layer = OpenStreetMap English)
+       # Base map (NO default tiles)
     m = folium.Map(
         location=[13, 80],
         zoom_start=5,
         control_scale=True,
         zoom_control=False,
-        tiles="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-        attr="© OpenStreetMap contributors"
+        tiles=None
     )
 
-    # ✅ Additional English-labeled tile layers
-    folium.TileLayer(
-        tiles="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
-        attr="© OpenStreetMap © Carto",
-        name="Carto Light (English)",
-        subdomains="abcd",
-        max_zoom=20
-    ).add_to(m)
-
+    # ✅ Default layer (Esri - explicitly shown on load)
     folium.TileLayer(
         tiles="https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",
         attr="Tiles © Esri",
-        name="Esri World Street Map (English)"
+        name="Esri World Street Map (English)",
+        control=True,
+        show=True
     ).add_to(m)
-    # Positron (very clean UI)
+
+    # Other layers (not shown by default)
+    folium.TileLayer(
+        tiles="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        attr="© OpenStreetMap contributors",
+        name="OpenStreetMap",
+        control=True,
+        show=False
+    ).add_to(m)
+
+    folium.TileLayer(
+        tiles="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+        attr="© OpenStreetMap © Carto",
+        name="Carto Light",
+        subdomains="abcd",
+        show=False
+    ).add_to(m)
+
     folium.TileLayer(
         tiles="https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png",
         attr="© OpenStreetMap © Carto",
         name="Light No Labels",
-        subdomains="abcd"
+        subdomains="abcd",
+        show=False
     ).add_to(m)
 
-    # Voyager (nice balanced map)
     folium.TileLayer(
         tiles="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
         attr="© OpenStreetMap © Carto",
         name="Carto Voyager",
-        subdomains="abcd"
+        subdomains="abcd",
+        show=False
     ).add_to(m)
-    # ✅ Add layer control so user can switch
+
+
+    # Layer control
     folium.LayerControl(position="bottomright").add_to(m)
 
     # Popup HTML template
@@ -120,7 +133,7 @@ def allmaps_view(request):
         route_points = [{"lat": g["lat"], "lng": g["lng"]} for g in group]
         first = group[0]
         vessel_js_array.append({
-            "name": prefix,
+            "name": prefix,  # same for all in group
             "lat": first.get("lat", 13),
             "lng": first.get("lng", 80),
             "color": first.get("color", "blue"),
@@ -138,6 +151,7 @@ def allmaps_view(request):
             "route": route_points,
             "currentIndex": 0
         })
+
 
     js_code = f"""
     <script>
