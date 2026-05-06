@@ -39,13 +39,21 @@ def allmaps_view(request):
         attr="Tiles © Esri",
         name="Esri World Street Map (English)"
     ).add_to(m)
+    # Positron (very clean UI)
+    folium.TileLayer(
+        tiles="https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png",
+        attr="© OpenStreetMap © Carto",
+        name="Light No Labels",
+        subdomains="abcd"
+    ).add_to(m)
 
-    #folium.TileLayer(
-    #    tiles="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-    #    attr="Tiles © Esri",
-    #    name="Esri Satellite"
-    #).add_to(m)
-
+    # Voyager (nice balanced map)
+    folium.TileLayer(
+        tiles="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
+        attr="© OpenStreetMap © Carto",
+        name="Carto Voyager",
+        subdomains="abcd"
+    ).add_to(m)
     # ✅ Add layer control so user can switch
     folium.LayerControl(position="bottomright").add_to(m)
 
@@ -101,26 +109,34 @@ def allmaps_view(request):
     </div>
     """
 
+    # Group vessels by prefix (A, B, C...) to form routes
+    routes = {}
+    for v in vessels:
+        prefix = ''.join([c for c in v["name"] if not c.isdigit()])
+        routes.setdefault(prefix, []).append(v)
+
     vessel_js_array = []
-    for i, v in enumerate(vessels):
+    for prefix, group in routes.items():
+        route_points = [{"lat": g["lat"], "lng": g["lng"]} for g in group]
+        first = group[0]
         vessel_js_array.append({
-            "name": v.get("name", f"Vessel {i+1}"),
-            "lat": v.get("lat", 13),
-            "lng": v.get("lng", 80),
-            "color": v.get("color", "blue"),
+            "name": prefix,
+            "lat": first.get("lat", 13),
+            "lng": first.get("lng", 80),
+            "color": first.get("color", "blue"),
             "popup": popup_template
-                .replace("{{Comments}}", str(v.get("Comments", "-")))
-                .replace("{{DateTime}}", str(v.get("DateTime", "-")))
-                .replace("{{Speed}}", str(v.get("Speed", "-")))
-                .replace("{{IdleTime}}", str(v.get("IdleTime", "-")))
-                .replace("{{Battery}}", str(v.get("Battery", "-")))
-                .replace("{{Fuel1}}", str(v.get("Fuel1", "-")))
-                .replace("{{Fuel2}}", str(v.get("Fuel2", "-")))
-                .replace("{{Eng1RunStatus}}", str(v.get("Eng1RunStatus", "-")))
-                .replace("{{Eng2RunStatus}}", str(v.get("Eng2RunStatus", "-"))),
-            "dx": 0.02,
-            "dy": 0.01,
-            "shape": "triangle" #if i % 2 == 0 else "diamond"
+                .replace("{{Comments}}", str(first.get("Comments", "-")))
+                .replace("{{DateTime}}", str(first.get("DateTime", "-")))
+                .replace("{{Speed}}", str(first.get("Speed", "-")))
+                .replace("{{IdleTime}}", str(first.get("IdleTime", "-")))
+                .replace("{{Battery}}", str(first.get("Battery", "-")))
+                .replace("{{Fuel1}}", str(first.get("Fuel1", "-")))
+                .replace("{{Fuel2}}", str(first.get("Fuel2", "-")))
+                .replace("{{Eng1RunStatus}}", str(first.get("Eng1RunStatus", "-")))
+                .replace("{{Eng2RunStatus}}", str(first.get("Eng2RunStatus", "-"))),
+            "shape": "triangle",
+            "route": route_points,
+            "currentIndex": 0
         })
 
     js_code = f"""
@@ -174,17 +190,18 @@ def allmaps_view(request):
             markers.push({{marker: marker, data: v}});
         }});
 
+        // ✅ Move ships along their route arrays
         function moveShips() {{
             markers.forEach(obj => {{
                 let v = obj.data;
-                v.lat += v.dy;
-                v.lng += v.dx;
-                if (v.lat > 22 || v.lat < 6) v.dy *= -1;
-                if (v.lng > 92 || v.lng < 66) v.dx *= -1;
-                obj.marker.setLatLng([v.lat, v.lng]);
+                if (v.route && v.route.length > 1) {{
+                    v.currentIndex = (v.currentIndex + 1) % v.route.length;
+                    let nextPoint = v.route[v.currentIndex];
+                    obj.marker.setLatLng([nextPoint.lat, nextPoint.lng]);
+                }}
             }});
         }}
-        setInterval(moveShips, 500);
+        setInterval(moveShips, 1000);
     }};
     </script>
     """
