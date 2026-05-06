@@ -1,0 +1,32 @@
+{
+  "name": "Vessel",
+  "color": "darkred",
+  "positions": [
+    {
+      "lat": 12.5000,
+      "lng": 83.5000,
+      "Comments": "Cargo Ship - Chennai Route",
+      "DateTime": "2026-05-05 14:30:00",
+      "Speed": 12,
+      "IdleTime": 0.5,
+      "Battery": 24.5,
+      "Fuel1": 320,
+      "Fuel2": 150,
+      "Eng1RunStatus": "Running",
+      "Eng2RunStatus": "Idle"
+    },
+    {
+      "lat": 12.5035,
+      "lng": 83.5042,
+      "Comments": "Support Ship - Chennai",
+      "DateTime": "2026-05-05 14:32:00",
+      "Speed": 11,
+      "IdleTime": 0.3,
+      "Battery": 24.1,
+      "Fuel1": 300,
+      "Fuel2": 140,
+      "Eng1RunStatus": "Running",
+      "Eng2RunStatus": "Running"
+    }
+  ]
+}

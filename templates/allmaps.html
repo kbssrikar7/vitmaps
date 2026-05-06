@@ -1,166 +1,379 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<title>Fleet Tracking</title>
+    <meta charset="UTF-8">
+    <title>Fleet Tracking</title>
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-<style>
-html, body {
-    height: 100%;
-    margin: 0;
-    background: #eef2f6;
-}
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            background: #eef2f6;
+        }
 
-/* OUTER WRAPPER */
-.page-wrapper {
-    height: 100vh; /* full viewport height */
-    padding: clamp(8px, 0.5vw, 20px);
-    box-sizing: border-box;
-}
+        /* OUTER WRAPPER */
+        .page-wrapper {
+            height: 100vh;
+            /* full viewport height */
+            padding: clamp(8px, 0.5vw, 20px);
+            box-sizing: border-box;
+        }
 
-/* CARD STYLE MAP */
-.map-card {
-    height: 100%;
-    width: 100%;
-    border-radius: 15px;
-    overflow: hidden;
-    position: relative;
-    background: white;
-    box-shadow: 0 6px 25px rgba(0,0,0,0.15);
-}
+        /* CARD STYLE MAP */
+        .map-card {
+            height: 100%;
+            width: 100%;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+            background: white;
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
+        }
 
-/* MAP HOLDER */
-#map-wrapper {
-    height: 100%;
-    width: 100%;
-}
+        /* MAP HOLDER */
+        #map-wrapper {
+            height: 100%;
+            width: 100%;
+        }
 
-/* FORCE FOLIUM FULL SIZE */
-#map-wrapper iframe {
-    width: 100% !important;
-    height: 100vh !important; /* 🔥 full viewport height */
-    border: none;
-    display: block;
-}
+        /* FORCE FOLIUM FULL SIZE */
+        #map-wrapper iframe {
+            width: 100% !important;
+            height: 100vh !important;
+            /* 🔥 full viewport height */
+            border: none;
+            display: block;
+        }
 
-/* LOGO */
-.logo {
-    position: absolute;
-    top: 12px;
-    left: 12px;
-    z-index: 1000;
-}
+        /* LOGO */
+        .logo {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            z-index: 1000;
+        }
 
-.logo img {
-    height: clamp(30px, 4vw, 50px);
-}
+        .logo img {
+            height: clamp(30px, 4vw, 50px);
+        }
 
-/* BUTTONS */
-.top-buttons {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    z-index: 1000;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    max-width: 85%;
-    justify-content: flex-end;
-}
+        /* BUTTONS */
+        .top-buttons {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            z-index: 1000;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            max-width: 85%;
+            justify-content: flex-end;
+        }
 
-.top-buttons button {
-    border: none;
-    border-radius: 20px;
-    padding: 6px 12px;
-    font-size: clamp(11px, 2vw, 14px);
-    background: white;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
-    cursor: pointer;
-}
+        .top-buttons button {
+            border: none;
+            border-radius: 20px;
+            padding: 6px 12px;
+            font-size: clamp(11px, 2vw, 14px);
+            background: white;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+        }
 
-.top-buttons button:hover {
-    background: #007bff;
-    color: white;
-}
+        .top-buttons button:hover {
+            background: #007bff;
+            color: white;
+        }
 
-/* 📱 MOBILE OPTIMIZATION */
-@media (max-width: 768px) {
-    .page-wrapper {
-        height: 100vh;
-        padding: 6px;
-    }
+        /* 📱 MOBILE OPTIMIZATION */
+        @media (max-width: 768px) {
+            .page-wrapper {
+                height: 100vh;
+                padding: 6px;
+            }
 
-    .map-card {
-        height: 100%;
-    }
+            .map-card {
+                height: 100%;
+            }
 
-    .top-buttons {
-        top: auto;
-        bottom: 70px; /* space for zoom control */
-        right: 12px;
-        flex-direction: column;
-        align-items: flex-end;
-    }
+            .top-buttons {
+                top: auto;
+                bottom: 70px;
+                /* space for zoom control */
+                right: 12px;
+                flex-direction: column;
+                align-items: flex-end;
+            }
 
-    .logo img {
-        height: 28px;
-    }
+            .logo img {
+                height: 28px;
+            }
 
-    #map-wrapper iframe {
-        height: 100vh !important;
-    }
-}
+            #map-wrapper iframe {
+                height: 100vh !important;
+            }
+        }
 
-/* 🔥 FORCE ZOOM CONTROL BOTTOM LEFT */
-.leaflet-control-zoom {
-    position: absolute !important;
-    left: 12px !important;
-    bottom: 12px !important;
-}
-
-</style>
+        /* 🔥 FORCE ZOOM CONTROL BOTTOM LEFT */
+        .leaflet-control-zoom {
+            position: absolute !important;
+            left: 12px !important;
+            bottom: 12px !important;
+        }
+    </style>
 </head>
 
 <body>
 
-<div class="page-wrapper">
-    <div class="map-card">
+    <div class="page-wrapper">
+        <div class="map-card">
 
-        <!-- LOGO -->
-        <div class="logo">
-            <img src="/static/images/VitalitySeaWaysLLP.png">
+            <!-- LOGO -->
+            <div class="logo">
+                <img src="/static/images/VitalitySeaWaysLLP.png">
+            </div>
+
+            <!-- BUTTONS -->
+            <div class="top-buttons">
+                <div class="dropdown d-inline-block">
+                    <button class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Speed
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0"
+                        style="border-radius: 12px; min-width: 100px;">
+                        <li><a class="dropdown-item py-2" href="javascript:void(0)" onclick="setMapSpeed(2000)">0.5x</a>
+                        </li>
+                        <li><a class="dropdown-item py-2" href="javascript:void(0)" onclick="setMapSpeed(1000)">1x
+                                (Default)</a></li>
+                        <li><a class="dropdown-item py-2" href="javascript:void(0)" onclick="setMapSpeed(500)">2x</a>
+                        </li>
+                        <li><a class="dropdown-item py-2" href="javascript:void(0)" onclick="setMapSpeed(200)">5x</a>
+                        </li>
+                    </ul>
+                </div>
+                <button onclick="alert('Dashboard')">Dashboard</button>
+                <button onclick="window.location.href='{% url 'allmaps' %}'">MAP</button>
+                <button onclick="alert('Vessels')">Vessels</button>
+                <button onclick="alert('Alert')">Alert</button>
+                {% if user.is_authenticated %}
+                <button onclick="window.location.href='{% url 'logout' %}'">Logout</button>
+                {% else %}
+                <button id="loginBtn">Login</button>
+                {% endif %}
+            </div>
+
+            <!-- MAP -->
+            <div id="map-wrapper">
+                {{ map_html|safe }}
+            </div>
+
         </div>
-
-        <!-- BUTTONS -->
-        <div class="top-buttons">
-            <button onclick="alert('Dashboard')">Dashboard</button>
-            <button onclick="window.location.href='{% url 'allmaps' %}'">MAP</button>
-            <button onclick="alert('Vessels')">Vessels</button>
-            <button onclick="alert('Alert')">Alert</button>
-            <button onclick="window.location.href='{% url 'login' %}'">Login</button>
-        </div>
-
-        <!-- MAP -->
-        <div id="map-wrapper">
-            {{ map_html|safe }}
-        </div>
-
     </div>
-</div>
 
-<script>
-function fixMap() {
-    const iframe = document.querySelector('#map-wrapper iframe');
-    if (iframe) {
-        iframe.style.height = window.innerHeight + "px";
-        iframe.style.width = "100%";
-    }
-}
-window.addEventListener("load", fixMap);
-window.addEventListener("resize", fixMap);
-</script>
+    <!-- Login Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 12px; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);">
+                <div class="modal-header" style="border-bottom: none;">
+                    <h5 class="modal-title w-100 text-center" id="loginModalLabel">Login</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="padding: 20px 40px;">
+                    <form id="loginForm">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <input type="text" name="username" class="form-control" placeholder="Username" required
+                                style="border-radius: 8px; padding: 10px;">
+                        </div>
+                        <div class="mb-3">
+                            <input type="password" name="password" class="form-control" placeholder="Password" required
+                                style="border-radius: 8px; padding: 10px;">
+                        </div>
+                        <button type="submit" class="btn w-100"
+                            style="background-color: #2f4f8f; color: white; border-radius: 8px; padding: 10px; font-size: 15px;">Sign
+                            In</button>
+                    </form>
+                    <div class="text-center mt-3" style="font-size: 14px;">
+                        Need an account? <a href="javascript:void(0)" id="switchToRegister"
+                            style="color: #3b82f6; text-decoration: none;">Register</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 12px; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);">
+                <div class="modal-header" style="border-bottom: none;">
+                    <h5 class="modal-title w-100 text-center" id="registerModalLabel">Register</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="padding: 20px 40px;">
+                    <form id="registerForm">
+                        {% csrf_token %}
+                        <div id="registerFormFields">
+                            <!-- Fields will be loaded here or we can hardcode for speed -->
+                            <div class="mb-3">
+                                <input type="text" name="username" class="form-control" placeholder="Username" required
+                                    style="border-radius: 8px; padding: 10px;">
+                                <small class="text-muted" style="font-size: 10px;">Required. 150 characters or fewer.
+                                    Letters, digits and @/./+/-/_ only.</small>
+                            </div>
+                            <div class="mb-3">
+                                <input type="password" name="password" class="form-control" placeholder="Password"
+                                    required style="border-radius: 8px; padding: 10px;">
+                                <small class="text-muted" style="font-size: 10px;">Your password can’t be too similar to
+                                    your other personal information.</small>
+                            </div>
+                            <div class="mb-3">
+                                <input type="password" name="password_confirm" class="form-control"
+                                    placeholder="Confirm Password" required style="border-radius: 8px; padding: 10px;">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn w-100"
+                            style="background-color: #2f4f8f; color: white; border-radius: 8px; padding: 10px; font-size: 15px;">Sign
+                            Up</button>
+                    </form>
+                    <div class="text-center mt-3" style="font-size: 14px;">
+                        Already have an account? <a href="javascript:void(0)" id="switchToLogin"
+                            style="color: #3b82f6; text-decoration: none;">Login</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Bridge function to call speed control inside folium iframe
+        function setMapSpeed(ms) {
+            const iframe = document.querySelector('#map-wrapper iframe');
+            if (iframe && iframe.contentWindow && iframe.contentWindow.setMapSpeed) {
+                iframe.contentWindow.setMapSpeed(ms);
+            } else {
+                console.warn("Map iframe or setMapSpeed function not ready yet.");
+            }
+        }
+
+        function fixMap() {
+            const iframe = document.querySelector('#map-wrapper iframe');
+            if (iframe) {
+                iframe.style.height = window.innerHeight + "px";
+                iframe.style.width = "100%";
+            }
+        }
+        window.addEventListener("load", fixMap);
+        window.addEventListener("resize", fixMap);
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const loginBtn = document.getElementById("loginBtn");
+            const loginForm = document.getElementById("loginForm");
+            const registerForm = document.getElementById("registerForm");
+
+            const loginModalElement = document.getElementById('loginModal');
+            const registerModalElement = document.getElementById('registerModal');
+
+            const loginModal = new bootstrap.Modal(loginModalElement);
+            const registerModal = new bootstrap.Modal(registerModalElement);
+
+            const switchToRegister = document.getElementById("switchToRegister");
+            const switchToLogin = document.getElementById("switchToLogin");
+
+            if (loginBtn) {
+                loginBtn.onclick = function () {
+                    loginModal.show();
+                };
+            }
+
+            if (switchToRegister) {
+                switchToRegister.onclick = function () {
+                    loginModal.hide();
+                    registerModal.show();
+                };
+            }
+
+            if (switchToLogin) {
+                switchToLogin.onclick = function () {
+                    registerModal.hide();
+                    loginModal.show();
+                };
+            }
+
+            // Login Form Submit
+            loginForm.onsubmit = async function (e) {
+                e.preventDefault();
+                const formData = new FormData(loginForm);
+
+                try {
+                    const response = await fetch("{% url 'login' %}", {
+                        method: "POST",
+                        body: formData,
+                        headers: {
+                            "X-Requested-With": "XMLHttpRequest",
+                        }
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        loginModal.hide();
+                        window.location.reload();
+                    } else {
+                        loginModal.hide();
+                        alert("invalid credentials login again");
+                        loginModal.show();
+                    }
+                } catch (error) {
+                    console.error("Error during login:", error);
+                    alert("An error occurred. Please try again.");
+                }
+            };
+
+            // Register Form Submit
+            registerForm.onsubmit = async function (e) {
+                e.preventDefault();
+                const formData = new FormData(registerForm);
+
+                // Django UserCreationForm expects password1 and password2
+                // Our fields are named 'password' and 'password_confirm'
+                const dataToSend = new FormData();
+                dataToSend.append('csrfmiddlewaretoken', formData.get('csrfmiddlewaretoken'));
+                dataToSend.append('username', formData.get('username'));
+                dataToSend.append('password1', formData.get('password'));
+                dataToSend.append('password2', formData.get('password_confirm'));
+
+                try {
+                    const response = await fetch("{% url 'register' %}", {
+                        method: "POST",
+                        body: dataToSend,
+                        headers: {
+                            "X-Requested-With": "XMLHttpRequest",
+                        }
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        registerModal.hide();
+                        window.location.reload();
+                    } else {
+                        alert("Registration failed:\n" + data.error);
+                    }
+                } catch (error) {
+                    console.error("Error during registration:", error);
+                    alert("An error occurred. Please try again.");
+                }
+            };
+        });
+
+    </script>
 
 </body>
+
 </html>
