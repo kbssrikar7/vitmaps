@@ -155,25 +155,20 @@
                         </li>
                     </ul>
                 </div>
-                
-                {% if user.is_authenticated %}
                 <button onclick="alert('Dashboard')">Dashboard</button>
                 <button onclick="window.location.href='{% url 'user_map_auth' %}'">MAP</button>
                 <button onclick="alert('Vessels')">Vessels</button>
                 <button onclick="alert('Alert')">Alert</button>
+                {% if user.is_authenticated %}
                 <button onclick="window.location.href='{% url 'logout' %}'">Logout</button>
                 {% else %}
-                <button onclick="alert('Dashboard')">Dashboard</button>
-                <button onclick="window.location.href='{% url 'allmaps' %}'">MAP</button>
-                <button onclick="alert('Vessels')">Vessels</button>
-                <button onclick="alert('Alert')">Alert</button>
                 <button id="loginBtn">Login</button>
                 {% endif %}
             </div>
 
             <!-- MAP -->
             <div id="map-wrapper">
-                {{ map_html|safe }}
+                {{ map_auth_html|safe }}
             </div>
 
         </div>
@@ -328,7 +323,7 @@
 
                     if (data.success) {
                         loginModal.hide();
-                        window.location.href = data.redirect_url;
+                        window.location.reload();
                     } else {
                         loginModal.hide();
                         alert("invalid credentials login again");
