@@ -1,0 +1,1120 @@
+[2026-05-08 15:40:29,647] WARNING tracking_app.views user_map_auth_view: Associated Vessels Error: 401
+[2026-05-08 15:40:29,648] WARNING tracking_app.views user_map_auth_view: showing map error message=Associated Vessels Error: 401
+[2026-05-08 15:54:22,984] WARNING django.request Not Found: /favicon.ico
+[2026-05-08 15:54:22,994] WARNING django.server "GET /favicon.ico HTTP/1.1" 404 4285
+[2026-05-08 16:24:07,615] WARNING tracking_app.views user_map_auth_view: Associated Vessels Error: 404
+[2026-05-08 16:24:07,617] WARNING tracking_app.views user_map_auth_view: showing map error message=Associated Vessels Error: 404
+[2026-05-08 16:25:38,964] WARNING tracking_app.views user_map_auth_view: Associated Vessels Error: 404
+[2026-05-08 16:25:38,967] WARNING tracking_app.views user_map_auth_view: showing map error message=Associated Vessels Error: 404
+[2026-05-08 16:56:05,932] WARNING tracking_app.views user_map_auth_view: Associated Vessels Error: 401
+[2026-05-08 16:56:05,966] WARNING tracking_app.views user_map_auth_view: showing map error message=Associated Vessels Error: 401
+[2026-05-08 16:57:33,692] ERROR tracking_app.views allmaps_view: API fetch failed, trying local fallback
+Traceback (most recent call last):
+  File "C:\Python314\Lib\site-packages\urllib3\connectionpool.py", line 464, in _make_request
+    self._validate_conn(conn)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Python314\Lib\site-packages\urllib3\connectionpool.py", line 1093, in _validate_conn
+    conn.connect()
+    ~~~~~~~~~~~~^^
+  File "C:\Python314\Lib\site-packages\urllib3\connection.py", line 796, in connect
+    sock_and_verified = _ssl_wrap_socket_and_match_hostname(
+        sock=sock,
+    ...<14 lines>...
+        assert_fingerprint=self.assert_fingerprint,
+    )
+  File "C:\Python314\Lib\site-packages\urllib3\connection.py", line 975, in _ssl_wrap_socket_and_match_hostname
+    ssl_sock = ssl_wrap_socket(
+        sock=sock,
+    ...<8 lines>...
+        tls_in_tls=tls_in_tls,
+    )
+  File "C:\Python314\Lib\site-packages\urllib3\util\ssl_.py", line 483, in ssl_wrap_socket
+    ssl_sock = _ssl_wrap_socket_impl(sock, context, tls_in_tls, server_hostname)
+  File "C:\Python314\Lib\site-packages\urllib3\util\ssl_.py", line 527, in _ssl_wrap_socket_impl
+    return ssl_context.wrap_socket(sock, server_hostname=server_hostname)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\ssl.py", line 455, in wrap_socket
+    return self.sslsocket_class._create(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sock=sock,
+        ^^^^^^^^^^
+    ...<5 lines>...
+        session=session
+        ^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Python314\Lib\ssl.py", line 1076, in _create
+    self.do_handshake()
+    ~~~~~~~~~~~~~~~~~^^
+  File "C:\Python314\Lib\ssl.py", line 1372, in do_handshake
+    self._sslobj.do_handshake()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+TimeoutError: _ssl.c:1063: The handshake operation timed out
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Python314\Lib\site-packages\requests\adapters.py", line 645, in send
+    resp = conn.urlopen(
+        method=request.method,
+    ...<9 lines>...
+        chunked=chunked,
+    )
+  File "C:\Python314\Lib\site-packages\urllib3\connectionpool.py", line 841, in urlopen
+    retries = retries.increment(
+        method, url, error=new_e, _pool=self, _stacktrace=sys.exc_info()[2]
+    )
+  File "C:\Python314\Lib\site-packages\urllib3\util\retry.py", line 490, in increment
+    raise reraise(type(error), error, _stacktrace)
+          ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\site-packages\urllib3\util\util.py", line 39, in reraise
+    raise value
+  File "C:\Python314\Lib\site-packages\urllib3\connectionpool.py", line 787, in urlopen
+    response = self._make_request(
+        conn,
+    ...<10 lines>...
+        **response_kw,
+    )
+  File "C:\Python314\Lib\site-packages\urllib3\connectionpool.py", line 488, in _make_request
+    raise new_e
+  File "C:\Python314\Lib\site-packages\urllib3\connectionpool.py", line 466, in _make_request
+    self._raise_timeout(err=e, url=url, timeout_value=conn.timeout)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\site-packages\urllib3\connectionpool.py", line 367, in _raise_timeout
+    raise ReadTimeoutError(
+        self, url, f"Read timed out. (read timeout={timeout_value})"
+    ) from err
+urllib3.exceptions.ReadTimeoutError: HTTPSConnectionPool(host='shiptrackingapi-787201059405.asia-south2.run.app', port=443): Read timed out. (read timeout=10)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Projects\ShipProject\ShipProject\projects\vitmaps\tracking_app\views.py", line 47, in allmaps_view
+    response = requests.get(api_url, timeout=10)
+  File "C:\Python314\Lib\site-packages\requests\api.py", line 73, in get
+    return request("get", url, params=params, **kwargs)
+  File "C:\Python314\Lib\site-packages\requests\api.py", line 59, in request
+    return session.request(method=method, url=url, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\site-packages\requests\sessions.py", line 592, in request
+    resp = self.send(prep, **send_kwargs)
+  File "C:\Python314\Lib\site-packages\requests\sessions.py", line 706, in send
+    r = adapter.send(request, **kwargs)
+  File "C:\Python314\Lib\site-packages\requests\adapters.py", line 691, in send
+    raise ReadTimeout(e, request=request)
+requests.exceptions.ReadTimeout: HTTPSConnectionPool(host='shiptrackingapi-787201059405.asia-south2.run.app', port=443): Read timed out. (read timeout=10)
+[2026-05-08 16:58:04,121] ERROR tracking_app.views user_map_auth_view: auth API fetch failed, trying local fallback
+Traceback (most recent call last):
+  File "C:\Python314\Lib\site-packages\urllib3\connectionpool.py", line 534, in _make_request
+    response = conn.getresponse()
+  File "C:\Python314\Lib\site-packages\urllib3\connection.py", line 571, in getresponse
+    httplib_response = super().getresponse()
+  File "C:\Python314\Lib\http\client.py", line 1450, in getresponse
+    response.begin()
+    ~~~~~~~~~~~~~~^^
+  File "C:\Python314\Lib\http\client.py", line 336, in begin
+    version, status, reason = self._read_status()
+                              ~~~~~~~~~~~~~~~~~^^
+  File "C:\Python314\Lib\http\client.py", line 297, in _read_status
+    line = str(self.fp.readline(_MAXLINE + 1), "iso-8859-1")
+               ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\socket.py", line 725, in readinto
+    return self._sock.recv_into(b)
+           ~~~~~~~~~~~~~~~~~~~~^^^
+  File "C:\Python314\Lib\ssl.py", line 1304, in recv_into
+    return self.read(nbytes, buffer)
+           ~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\ssl.py", line 1138, in read
+    return self._sslobj.read(len, buffer)
+           ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+TimeoutError: The read operation timed out
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Python314\Lib\site-packages\requests\adapters.py", line 645, in send
+    resp = conn.urlopen(
+        method=request.method,
+    ...<9 lines>...
+        chunked=chunked,
+    )
+  File "C:\Python314\Lib\site-packages\urllib3\connectionpool.py", line 841, in urlopen
+    retries = retries.increment(
+        method, url, error=new_e, _pool=self, _stacktrace=sys.exc_info()[2]
+    )
+  File "C:\Python314\Lib\site-packages\urllib3\util\retry.py", line 490, in increment
+    raise reraise(type(error), error, _stacktrace)
+          ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\site-packages\urllib3\util\util.py", line 39, in reraise
+    raise value
+  File "C:\Python314\Lib\site-packages\urllib3\connectionpool.py", line 787, in urlopen
+    response = self._make_request(
+        conn,
+    ...<10 lines>...
+        **response_kw,
+    )
+  File "C:\Python314\Lib\site-packages\urllib3\connectionpool.py", line 536, in _make_request
+    self._raise_timeout(err=e, url=url, timeout_value=read_timeout)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\site-packages\urllib3\connectionpool.py", line 367, in _raise_timeout
+    raise ReadTimeoutError(
+        self, url, f"Read timed out. (read timeout={timeout_value})"
+    ) from err
+urllib3.exceptions.ReadTimeoutError: HTTPSConnectionPool(host='shiptrackingapiauth-787201059405.asia-south2.run.app', port=443): Read timed out. (read timeout=10)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Projects\ShipProject\ShipProject\projects\vitmaps\tracking_app\views.py", line 394, in user_map_auth_view
+    assoc_res = requests.get(assoc_url, headers=headers, timeout=10)
+  File "C:\Python314\Lib\site-packages\requests\api.py", line 73, in get
+    return request("get", url, params=params, **kwargs)
+  File "C:\Python314\Lib\site-packages\requests\api.py", line 59, in request
+    return session.request(method=method, url=url, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\site-packages\requests\sessions.py", line 592, in request
+    resp = self.send(prep, **send_kwargs)
+  File "C:\Python314\Lib\site-packages\requests\sessions.py", line 706, in send
+    r = adapter.send(request, **kwargs)
+  File "C:\Python314\Lib\site-packages\requests\adapters.py", line 691, in send
+    raise ReadTimeout(e, request=request)
+requests.exceptions.ReadTimeout: HTTPSConnectionPool(host='shiptrackingapiauth-787201059405.asia-south2.run.app', port=443): Read timed out. (read timeout=10)
+[2026-05-08 16:58:04,347] WARNING tracking_app.views user_map_auth_view: showing map error message=Connection Error: HTTPSConnectionPool(host='shiptrackingapiauth-787201059405.asia-south2.run.app', port=443): Read timed out. (read timeout=10)
+[2026-05-08 17:01:17,311] WARNING tracking_app.views user_map_auth_view: Associated Vessels Error: 401
+[2026-05-08 17:01:17,329] WARNING tracking_app.views user_map_auth_view: showing map error message=Associated Vessels Error: 401
+[2026-05-08 17:28:49,325] WARNING tracking_app.views user_map_auth_view: Associated Vessels Error: 401
+[2026-05-08 17:28:49,336] WARNING tracking_app.views user_map_auth_view: showing map error message=Associated Vessels Error: 401
+[2026-05-08 17:31:03,146] WARNING django.request Not Found: /user_map_auth/srcdoc
+[2026-05-08 17:31:03,419] WARNING django.server "GET /user_map_auth/srcdoc?live_vessel_id=118&_=1778241663135 HTTP/1.1" 404 4351
+[2026-05-08 17:33:41,107] WARNING django.request Not Found: /user_map_auth/srcdoc
+[2026-05-08 17:33:41,392] WARNING django.server "GET /user_map_auth/srcdoc?live_vessel_id=118&_=1778241821002 HTTP/1.1" 404 4351
+[2026-05-08 17:34:11,428] WARNING django.request Not Found: /user_map_auth/srcdoc
+[2026-05-08 17:34:11,434] WARNING django.server "GET /user_map_auth/srcdoc?live_vessel_id=118&_=1778241851392 HTTP/1.1" 404 4351
+[2026-05-08 17:40:30,514] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:30,526] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:30,571] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:30,602] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:30,613] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:30,653] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:30,655] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:30,705] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:30,710] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:30,747] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:30,749] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:30,777] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:30,793] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:30,829] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:30,844] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:30,892] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:30,913] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:30,938] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:30,969] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:30,995] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,009] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,036] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,050] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,096] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,124] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,144] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,177] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,205] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,225] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,255] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,261] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,296] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,297] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,335] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,340] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,375] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,382] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,406] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,421] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,431] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,457] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,471] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,477] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,494] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,496] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,513] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,524] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,531] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,544] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,558] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,577] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,582] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,615] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,623] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,655] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,662] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,663] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,691] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,703] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,742] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,793] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,807] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,809] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,812] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,836] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,857] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,870] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,873] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,879] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,883] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,896] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,919] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,920] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,923] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,925] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,944] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,962] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,964] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,966] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:31,976] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:32,005] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:32,019] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:32,021] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:32,028] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:32,029] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:32,038] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:32,056] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:32,062] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:32,069] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:32,077] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:32,105] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:32,122] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:32,130] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:32,140] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:32,156] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:32,161] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:32,188] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:32,190] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:32,277] ERROR django.request Internal Server Error: /login/
+Traceback (most recent call last):
+  File "C:\Python314\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Python314\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Projects\ShipProject\ShipProject\projects\vitmaps\tracking_app\views.py", line 320, in login_view
+    return render(request, 'login.html')
+  File "C:\Python314\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: login.html
+[2026-05-08 17:40:32,278] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:32,297] ERROR django.server "GET /login/ HTTP/1.1" 500 88723
+[2026-05-08 17:40:32,405] ERROR django.request Internal Server Error: /login/
+Traceback (most recent call last):
+  File "C:\Python314\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Python314\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Projects\ShipProject\ShipProject\projects\vitmaps\tracking_app\views.py", line 320, in login_view
+    return render(request, 'login.html')
+  File "C:\Python314\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: login.html
+[2026-05-08 17:40:32,412] ERROR django.server "GET /login/ HTTP/1.1" 500 88723
+[2026-05-08 17:40:32,468] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:32,538] ERROR django.request Internal Server Error: /login/
+Traceback (most recent call last):
+  File "C:\Python314\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Python314\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Projects\ShipProject\ShipProject\projects\vitmaps\tracking_app\views.py", line 320, in login_view
+    return render(request, 'login.html')
+  File "C:\Python314\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: login.html
+[2026-05-08 17:40:32,542] ERROR django.server "GET /login/ HTTP/1.1" 500 88723
+[2026-05-08 17:40:32,637] ERROR django.request Internal Server Error: /login/
+Traceback (most recent call last):
+  File "C:\Python314\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Python314\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Projects\ShipProject\ShipProject\projects\vitmaps\tracking_app\views.py", line 320, in login_view
+    return render(request, 'login.html')
+  File "C:\Python314\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: login.html
+[2026-05-08 17:40:32,643] ERROR django.server "GET /login/ HTTP/1.1" 500 88723
+[2026-05-08 17:40:32,656] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:32,753] ERROR django.request Internal Server Error: /login/
+Traceback (most recent call last):
+  File "C:\Python314\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Python314\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Projects\ShipProject\ShipProject\projects\vitmaps\tracking_app\views.py", line 320, in login_view
+    return render(request, 'login.html')
+  File "C:\Python314\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: login.html
+[2026-05-08 17:40:32,758] ERROR django.server "GET /login/ HTTP/1.1" 500 88723
+[2026-05-08 17:40:32,897] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:32,907] ERROR django.request Internal Server Error: /login/
+Traceback (most recent call last):
+  File "C:\Python314\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Python314\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Projects\ShipProject\ShipProject\projects\vitmaps\tracking_app\views.py", line 320, in login_view
+    return render(request, 'login.html')
+  File "C:\Python314\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: login.html
+[2026-05-08 17:40:32,925] ERROR django.server "GET /login/ HTTP/1.1" 500 88723
+[2026-05-08 17:40:33,052] ERROR django.request Internal Server Error: /login/
+Traceback (most recent call last):
+  File "C:\Python314\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Python314\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Projects\ShipProject\ShipProject\projects\vitmaps\tracking_app\views.py", line 320, in login_view
+    return render(request, 'login.html')
+  File "C:\Python314\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: login.html
+[2026-05-08 17:40:33,056] ERROR django.server "GET /login/ HTTP/1.1" 500 88723
+[2026-05-08 17:40:33,066] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:33,208] ERROR django.request Internal Server Error: /login/
+Traceback (most recent call last):
+  File "C:\Python314\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Python314\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Projects\ShipProject\ShipProject\projects\vitmaps\tracking_app\views.py", line 320, in login_view
+    return render(request, 'login.html')
+  File "C:\Python314\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: login.html
+[2026-05-08 17:40:33,227] ERROR django.server "GET /login/ HTTP/1.1" 500 88723
+[2026-05-08 17:40:33,406] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:33,461] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:33,532] ERROR django.request Internal Server Error: /login/
+Traceback (most recent call last):
+  File "C:\Python314\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Python314\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Projects\ShipProject\ShipProject\projects\vitmaps\tracking_app\views.py", line 320, in login_view
+    return render(request, 'login.html')
+  File "C:\Python314\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: login.html
+[2026-05-08 17:40:33,536] ERROR django.server "GET /login/ HTTP/1.1" 500 88723
+[2026-05-08 17:40:33,688] ERROR django.request Internal Server Error: /login/
+Traceback (most recent call last):
+  File "C:\Python314\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Python314\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Projects\ShipProject\ShipProject\projects\vitmaps\tracking_app\views.py", line 320, in login_view
+    return render(request, 'login.html')
+  File "C:\Python314\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: login.html
+[2026-05-08 17:40:33,756] ERROR django.server "GET /login/ HTTP/1.1" 500 88723
+[2026-05-08 17:40:33,763] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:40:34,288] ERROR django.request Internal Server Error: /login/
+Traceback (most recent call last):
+  File "C:\Python314\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Python314\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Projects\ShipProject\ShipProject\projects\vitmaps\tracking_app\views.py", line 320, in login_view
+    return render(request, 'login.html')
+  File "C:\Python314\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: login.html
+[2026-05-08 17:40:34,465] ERROR django.request Internal Server Error: /login/
+Traceback (most recent call last):
+  File "C:\Python314\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Python314\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Projects\ShipProject\ShipProject\projects\vitmaps\tracking_app\views.py", line 320, in login_view
+    return render(request, 'login.html')
+  File "C:\Python314\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: login.html
+[2026-05-08 17:40:34,488] ERROR django.request Internal Server Error: /login/
+Traceback (most recent call last):
+  File "C:\Python314\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Python314\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Projects\ShipProject\ShipProject\projects\vitmaps\tracking_app\views.py", line 320, in login_view
+    return render(request, 'login.html')
+  File "C:\Python314\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: login.html
+[2026-05-08 17:45:27,143] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:45:27,267] ERROR django.request Internal Server Error: /login/
+Traceback (most recent call last):
+  File "C:\Python314\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Python314\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Projects\ShipProject\ShipProject\projects\vitmaps\tracking_app\views.py", line 320, in login_view
+    return render(request, 'login.html')
+  File "C:\Python314\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: login.html
+[2026-05-08 17:45:27,283] ERROR django.server "GET /login/ HTTP/1.1" 500 88723
+[2026-05-08 17:45:28,118] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:45:28,282] ERROR django.request Internal Server Error: /login/
+Traceback (most recent call last):
+  File "C:\Python314\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Python314\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Projects\ShipProject\ShipProject\projects\vitmaps\tracking_app\views.py", line 320, in login_view
+    return render(request, 'login.html')
+  File "C:\Python314\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: login.html
+[2026-05-08 17:45:28,298] ERROR django.server "GET /login/ HTTP/1.1" 500 88723
+[2026-05-08 17:45:29,361] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:45:29,571] ERROR django.request Internal Server Error: /login/
+Traceback (most recent call last):
+  File "C:\Python314\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Python314\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Projects\ShipProject\ShipProject\projects\vitmaps\tracking_app\views.py", line 320, in login_view
+    return render(request, 'login.html')
+  File "C:\Python314\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: login.html
+[2026-05-08 17:45:29,577] ERROR django.server "GET /login/ HTTP/1.1" 500 88723
+[2026-05-08 17:51:15,844] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:51:15,949] ERROR django.request Internal Server Error: /login/
+Traceback (most recent call last):
+  File "C:\Python314\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Python314\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Projects\ShipProject\ShipProject\projects\vitmaps\tracking_app\views.py", line 322, in login_view
+    return render(request, 'login.html')
+  File "C:\Python314\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: login.html
+[2026-05-08 17:51:15,962] ERROR django.server "GET /login/ HTTP/1.1" 500 88723
+[2026-05-08 17:51:16,842] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 17:51:16,902] ERROR django.request Internal Server Error: /login/
+Traceback (most recent call last):
+  File "C:\Python314\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Python314\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Projects\ShipProject\ShipProject\projects\vitmaps\tracking_app\views.py", line 322, in login_view
+    return render(request, 'login.html')
+  File "C:\Python314\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: login.html
+[2026-05-08 17:51:16,907] ERROR django.server "GET /login/ HTTP/1.1" 500 88723
+[2026-05-08 17:59:03,274] WARNING tracking_app.views user_map_auth_view: Associated Vessels Error: 500
+[2026-05-08 17:59:03,310] WARNING tracking_app.views user_map_auth_view: showing map error message=Associated Vessels Error: 500
+[2026-05-08 18:00:03,488] WARNING tracking_app.views user_map_auth_view: Associated Vessels Error: 500
+[2026-05-08 18:00:03,542] WARNING tracking_app.views user_map_auth_view: showing map error message=Associated Vessels Error: 500
+[2026-05-08 18:00:59,157] WARNING tracking_app.views user_map_auth_view: Associated Vessels Error: 500
+[2026-05-08 18:00:59,167] WARNING tracking_app.views user_map_auth_view: showing map error message=Associated Vessels Error: 500
+[2026-05-08 18:06:12,918] WARNING tracking_app.views user_map_auth_view: Associated Vessels API error status=500
+[2026-05-08 18:06:15,601] WARNING tracking_app.views user_map_auth_view: poll API failed status=500
+[2026-05-08 18:06:15,624] ERROR django.request Internal Server Error: /user_map_auth/
+[2026-05-08 18:06:15,627] ERROR django.server "GET /user_map_auth/?live_vessel_id=1&_=1778243774581 HTTP/1.1" 500 42
+[2026-05-08 18:06:16,703] WARNING tracking_app.views user_map_auth_view: poll API failed status=500
+[2026-05-08 18:06:16,706] ERROR django.request Internal Server Error: /user_map_auth/
+[2026-05-08 18:06:16,708] ERROR django.server "GET /user_map_auth/?live_vessel_id=2&_=1778243775593 HTTP/1.1" 500 42
+[2026-05-08 18:06:17,683] WARNING tracking_app.views user_map_auth_view: poll API failed status=500
+[2026-05-08 18:06:17,686] ERROR django.request Internal Server Error: /user_map_auth/
+[2026-05-08 18:06:17,733] ERROR django.server "GET /user_map_auth/?live_vessel_id=3&_=1778243776579 HTTP/1.1" 500 42
+[2026-05-08 18:06:18,938] WARNING tracking_app.views user_map_auth_view: poll API failed status=500
+[2026-05-08 18:06:18,949] ERROR django.request Internal Server Error: /user_map_auth/
+[2026-05-08 18:06:18,957] ERROR django.server "GET /user_map_auth/?live_vessel_id=112&_=1778243777593 HTTP/1.1" 500 42
+[2026-05-08 18:06:19,795] WARNING tracking_app.views user_map_auth_view: poll API failed status=500
+[2026-05-08 18:06:19,800] ERROR django.request Internal Server Error: /user_map_auth/
+[2026-05-08 18:06:19,805] ERROR django.server "GET /user_map_auth/?live_vessel_id=116&_=1778243778588 HTTP/1.1" 500 42
+[2026-05-08 18:06:20,732] WARNING tracking_app.views user_map_auth_view: poll API failed status=500
+[2026-05-08 18:06:20,734] ERROR django.request Internal Server Error: /user_map_auth/
+[2026-05-08 18:06:20,735] ERROR django.server "GET /user_map_auth/?live_vessel_id=115&_=1778243779579 HTTP/1.1" 500 42
+[2026-05-08 18:06:21,503] WARNING tracking_app.views user_map_auth_view: poll API failed status=500
+[2026-05-08 18:06:21,505] ERROR django.request Internal Server Error: /user_map_auth/
+[2026-05-08 18:06:21,506] ERROR django.server "GET /user_map_auth/?live_vessel_id=Ship%20Unknown&_=1778243780590 HTTP/1.1" 500 42
+[2026-05-08 18:06:22,372] WARNING tracking_app.views user_map_auth_view: poll API failed status=500
+[2026-05-08 18:06:22,374] ERROR django.request Internal Server Error: /user_map_auth/
+[2026-05-08 18:06:22,376] ERROR django.server "GET /user_map_auth/?live_vessel_id=1&_=1778243781585 HTTP/1.1" 500 42
+[2026-05-08 18:06:23,369] WARNING tracking_app.views user_map_auth_view: poll API failed status=500
+[2026-05-08 18:06:23,371] ERROR django.request Internal Server Error: /user_map_auth/
+[2026-05-08 18:06:23,374] ERROR django.server "GET /user_map_auth/?live_vessel_id=2&_=1778243782579 HTTP/1.1" 500 42
+[2026-05-08 18:06:24,875] WARNING tracking_app.views user_map_auth_view: poll API failed status=500
+[2026-05-08 18:06:24,882] ERROR django.request Internal Server Error: /user_map_auth/
+[2026-05-08 18:06:24,893] ERROR django.server "GET /user_map_auth/?live_vessel_id=3&_=1778243783584 HTTP/1.1" 500 42
+[2026-05-08 18:06:26,538] WARNING tracking_app.views user_map_auth_view: poll API failed status=500
+[2026-05-08 18:06:26,543] ERROR django.request Internal Server Error: /user_map_auth/
+[2026-05-08 18:06:26,545] ERROR django.server "GET /user_map_auth/?live_vessel_id=112&_=1778243784592 HTTP/1.1" 500 42
+[2026-05-08 18:06:27,192] WARNING tracking_app.views user_map_auth_view: poll API failed status=500
+[2026-05-08 18:06:27,195] ERROR django.request Internal Server Error: /user_map_auth/
+[2026-05-08 18:06:27,196] ERROR django.server "GET /user_map_auth/?live_vessel_id=116&_=1778243785579 HTTP/1.1" 500 42
+[2026-05-08 18:06:27,974] WARNING tracking_app.views user_map_auth_view: poll API failed status=500
+[2026-05-08 18:06:27,977] ERROR django.request Internal Server Error: /user_map_auth/
+[2026-05-08 18:06:27,978] ERROR django.server "GET /user_map_auth/?live_vessel_id=115&_=1778243786584 HTTP/1.1" 500 42
+[2026-05-08 18:06:28,688] WARNING tracking_app.views user_map_auth_view: poll API failed status=500
+[2026-05-08 18:06:28,691] ERROR django.request Internal Server Error: /user_map_auth/
+[2026-05-08 18:06:28,693] ERROR django.server "GET /user_map_auth/?live_vessel_id=Ship%20Unknown&_=1778243787585 HTTP/1.1" 500 42
+[2026-05-08 18:06:29,654] WARNING tracking_app.views user_map_auth_view: poll API failed status=500
+[2026-05-08 18:06:29,658] ERROR django.request Internal Server Error: /user_map_auth/
+[2026-05-08 18:06:29,660] ERROR django.server "GET /user_map_auth/?live_vessel_id=1&_=1778243788583 HTTP/1.1" 500 42
+[2026-05-08 18:06:30,712] WARNING tracking_app.views user_map_auth_view: poll API failed status=500
+[2026-05-08 18:06:30,717] ERROR django.request Internal Server Error: /user_map_auth/
+[2026-05-08 18:06:30,721] ERROR django.server "GET /user_map_auth/?live_vessel_id=2&_=1778243789583 HTTP/1.1" 500 42
+[2026-05-08 18:06:31,990] WARNING tracking_app.views user_map_auth_view: poll API failed status=500
+[2026-05-08 18:06:31,994] ERROR django.request Internal Server Error: /user_map_auth/
+[2026-05-08 18:06:32,000] ERROR django.server "GET /user_map_auth/?live_vessel_id=3&_=1778243790594 HTTP/1.1" 500 42
+[2026-05-08 18:06:33,405] WARNING tracking_app.views user_map_auth_view: poll API failed status=500
+[2026-05-08 18:06:33,435] ERROR django.request Internal Server Error: /user_map_auth/
+[2026-05-08 18:06:33,455] ERROR django.server "GET /user_map_auth/?live_vessel_id=112&_=1778243791579 HTTP/1.1" 500 42
+[2026-05-08 18:06:34,798] WARNING tracking_app.views user_map_auth_view: poll API failed status=500
+[2026-05-08 18:06:34,803] ERROR django.request Internal Server Error: /user_map_auth/
+[2026-05-08 18:06:34,804] ERROR django.server "GET /user_map_auth/?live_vessel_id=116&_=1778243792588 HTTP/1.1" 500 42
+[2026-05-08 18:06:35,574] WARNING tracking_app.views user_map_auth_view: poll API failed status=500
+[2026-05-08 18:06:35,577] ERROR django.request Internal Server Error: /user_map_auth/
+[2026-05-08 18:06:35,579] ERROR django.server "GET /user_map_auth/?live_vessel_id=115&_=1778243793581 HTTP/1.1" 500 42
+[2026-05-08 18:06:36,239] WARNING tracking_app.views user_map_auth_view: poll API failed status=500
+[2026-05-08 18:06:36,242] ERROR django.request Internal Server Error: /user_map_auth/
+[2026-05-08 18:06:36,247] ERROR django.server "GET /user_map_auth/?live_vessel_id=Ship%20Unknown&_=1778243794592 HTTP/1.1" 500 42
+[2026-05-08 18:06:36,984] WARNING tracking_app.views user_map_auth_view: poll API failed status=500
+[2026-05-08 18:06:36,987] ERROR django.request Internal Server Error: /user_map_auth/
+[2026-05-08 18:06:36,988] ERROR django.server "GET /user_map_auth/?live_vessel_id=1&_=1778243795582 HTTP/1.1" 500 42
+[2026-05-08 18:06:37,590] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 18:06:38,068] WARNING tracking_app.views user_map_auth_view: poll API failed status=500
+[2026-05-08 18:06:38,072] ERROR django.request Internal Server Error: /user_map_auth/
+[2026-05-08 18:06:38,073] ERROR django.server "GET /user_map_auth/?live_vessel_id=2&_=1778243796592 HTTP/1.1" 500 42
+[2026-05-08 18:06:38,163] ERROR django.request Internal Server Error: /login/
+Traceback (most recent call last):
+  File "C:\Python314\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Python314\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Projects\ShipProject\ShipProject\projects\vitmaps\tracking_app\views.py", line 322, in login_view
+    return render(request, 'login.html')
+  File "C:\Python314\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: login.html
+[2026-05-08 18:06:38,197] ERROR django.server "GET /login/ HTTP/1.1" 500 88723
+[2026-05-08 18:06:39,490] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 18:06:39,637] ERROR django.request Internal Server Error: /login/
+Traceback (most recent call last):
+  File "C:\Python314\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Python314\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Projects\ShipProject\ShipProject\projects\vitmaps\tracking_app\views.py", line 322, in login_view
+    return render(request, 'login.html')
+  File "C:\Python314\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: login.html
+[2026-05-08 18:06:39,666] ERROR django.server "GET /login/ HTTP/1.1" 500 88723
+[2026-05-08 18:08:24,228] WARNING tracking_app.views user_map_auth_view: Associated Vessels API error status=500
+[2026-05-08 18:08:30,373] WARNING tracking_app.views user_map_auth_view: poll API failed status=500 vessel_id=1
+[2026-05-08 18:08:31,879] WARNING tracking_app.views user_map_auth_view: poll API failed status=500 vessel_id=2
+[2026-05-08 18:08:32,785] WARNING tracking_app.views user_map_auth_view: poll API failed status=500 vessel_id=3
+[2026-05-08 18:08:33,579] WARNING tracking_app.views user_map_auth_view: poll API failed status=500 vessel_id=112
+[2026-05-08 18:08:34,241] WARNING tracking_app.views user_map_auth_view: poll API failed status=500 vessel_id=116
+[2026-05-08 18:08:34,754] WARNING tracking_app.views user_map_auth_view: skipping poll for non-numeric vessel_id=Ship Unknown
+[2026-05-08 18:08:35,156] WARNING tracking_app.views user_map_auth_view: poll API failed status=500 vessel_id=115
+[2026-05-08 18:08:36,777] WARNING tracking_app.views user_map_auth_view: poll API failed status=500 vessel_id=1
+[2026-05-08 18:08:38,121] WARNING tracking_app.views user_map_auth_view: poll API failed status=500 vessel_id=2
+[2026-05-08 18:08:39,152] WARNING tracking_app.views user_map_auth_view: poll API failed status=500 vessel_id=3
+[2026-05-08 18:08:40,048] WARNING tracking_app.views user_map_auth_view: poll API failed status=500 vessel_id=112
+[2026-05-08 18:08:40,708] WARNING tracking_app.views user_map_auth_view: poll API failed status=500 vessel_id=116
+[2026-05-08 18:08:41,618] WARNING tracking_app.views user_map_auth_view: skipping poll for non-numeric vessel_id=Ship Unknown
+[2026-05-08 18:08:41,706] WARNING tracking_app.views user_map_auth_view: poll API failed status=500 vessel_id=115
+[2026-05-08 18:08:43,687] WARNING tracking_app.views user_map_auth_view: poll API failed status=500 vessel_id=1
+[2026-05-08 18:08:44,697] WARNING tracking_app.views user_map_auth_view: poll API failed status=500 vessel_id=2
+[2026-05-08 18:08:45,620] WARNING tracking_app.views user_map_auth_view: poll API failed status=500 vessel_id=3
+[2026-05-08 18:08:46,612] WARNING tracking_app.views user_map_auth_view: poll API failed status=500 vessel_id=112
+[2026-05-08 18:08:47,714] WARNING tracking_app.views user_map_auth_view: poll API failed status=500 vessel_id=116
+[2026-05-08 18:08:49,132] WARNING tracking_app.views user_map_auth_view: poll API failed status=500 vessel_id=115
+[2026-05-08 18:08:49,552] WARNING tracking_app.views user_map_auth_view: skipping poll for non-numeric vessel_id=Ship Unknown
+[2026-05-08 18:08:52,111] WARNING tracking_app.views user_map_auth_view: poll API failed status=500 vessel_id=1
+[2026-05-08 18:08:53,286] WARNING tracking_app.views user_map_auth_view: poll API failed status=500 vessel_id=2
+[2026-05-08 18:08:54,052] WARNING tracking_app.views user_map_auth_view: poll API failed status=500 vessel_id=3
+[2026-05-08 18:08:55,434] WARNING tracking_app.views user_map_auth_view: poll API failed status=500 vessel_id=112
+[2026-05-08 18:08:55,667] WARNING tracking_app.views user_map_auth_view: poll API failed status=500 vessel_id=116
+[2026-05-08 18:09:38,445] WARNING tracking_app.views user_map_auth_view: skipping poll for non-numeric vessel_id=Ship Unknown
+[2026-05-08 18:09:39,220] WARNING tracking_app.views user_map_auth_view: poll API failed status=500 vessel_id=115
+[2026-05-08 18:09:39,290] WARNING tracking_app.views user_map_auth_view: poll API failed status=500 vessel_id=116
+[2026-05-08 18:09:40,360] WARNING tracking_app.views user_map_auth_view: poll API failed status=500 vessel_id=1
+[2026-05-08 18:09:41,545] WARNING tracking_app.views user_map_auth_view: poll API failed status=500 vessel_id=2
+[2026-05-08 18:09:42,696] WARNING tracking_app.views user_map_auth_view: poll API failed status=500 vessel_id=3
+[2026-05-08 18:09:43,267] WARNING tracking_app.views user_map_auth_view: poll API failed status=500 vessel_id=112
+[2026-05-08 18:09:44,498] WARNING tracking_app.views user_map_auth_view: poll API failed status=500 vessel_id=116
+[2026-05-08 18:09:45,302] WARNING tracking_app.views user_map_auth_view: poll API failed status=500 vessel_id=115
+[2026-05-08 18:09:45,410] WARNING tracking_app.views user_map_auth_view: skipping poll for non-numeric vessel_id=Ship Unknown
+[2026-05-08 18:09:47,600] WARNING tracking_app.views user_map_auth_view: poll API failed status=500 vessel_id=1
+[2026-05-08 18:09:48,951] WARNING tracking_app.views user_map_auth_view: poll API failed status=500 vessel_id=2
+[2026-05-08 18:09:50,045] WARNING tracking_app.views user_map_auth_view: poll API failed status=500 vessel_id=3
+[2026-05-08 18:09:50,247] WARNING tracking_app.views user_map_auth_view: poll API failed status=500 vessel_id=112
+[2026-05-08 18:09:50,596] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 18:09:50,820] ERROR django.request Internal Server Error: /login/
+Traceback (most recent call last):
+  File "C:\Python314\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Python314\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Projects\ShipProject\ShipProject\projects\vitmaps\tracking_app\views.py", line 322, in login_view
+    return render(request, 'login.html')
+  File "C:\Python314\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: login.html
+[2026-05-08 18:09:50,833] ERROR django.server "GET /login/ HTTP/1.1" 500 88723
+[2026-05-08 18:09:51,375] WARNING tracking_app.views user_map_auth_view: poll API failed status=500 vessel_id=116
+[2026-05-08 18:09:51,605] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 18:09:51,744] ERROR django.request Internal Server Error: /login/
+Traceback (most recent call last):
+  File "C:\Python314\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Python314\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Projects\ShipProject\ShipProject\projects\vitmaps\tracking_app\views.py", line 322, in login_view
+    return render(request, 'login.html')
+  File "C:\Python314\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: login.html
+[2026-05-08 18:09:51,755] ERROR django.server "GET /login/ HTTP/1.1" 500 88723
+[2026-05-08 18:09:52,801] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 18:09:52,940] ERROR django.request Internal Server Error: /login/
+Traceback (most recent call last):
+  File "C:\Python314\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Python314\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Projects\ShipProject\ShipProject\projects\vitmaps\tracking_app\views.py", line 322, in login_view
+    return render(request, 'login.html')
+  File "C:\Python314\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: login.html
+[2026-05-08 18:09:52,949] ERROR django.server "GET /login/ HTTP/1.1" 500 88723
+[2026-05-08 18:10:07,469] WARNING tracking_app.views user_map_auth_view: Associated Vessels API error status=500
+[2026-05-08 18:10:10,671] WARNING tracking_app.views user_map_auth_view: poll API failed status=500 vessel_id=1
+[2026-05-08 18:10:11,823] WARNING tracking_app.views user_map_auth_view: poll API failed status=500 vessel_id=2
+[2026-05-08 18:10:12,530] WARNING tracking_app.views user_map_auth_view: poll API failed status=500 vessel_id=3
+[2026-05-08 18:10:14,314] WARNING tracking_app.views user_map_auth_view: poll API failed status=500 vessel_id=112
+[2026-05-08 18:19:42,391] WARNING tracking_app.views user_map_auth_view: poll API failed status=404 vessel_id=2
+[2026-05-08 18:19:42,661] WARNING tracking_app.views user_map_auth_view: poll API failed status=404 vessel_id=3
+[2026-05-08 18:19:44,500] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 18:19:45,450] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 18:19:45,643] ERROR django.request Internal Server Error: /login/
+Traceback (most recent call last):
+  File "C:\Python314\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Python314\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Projects\ShipProject\ShipProject\projects\vitmaps\tracking_app\views.py", line 322, in login_view
+    return render(request, 'login.html')
+  File "C:\Python314\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: login.html
+[2026-05-08 18:19:45,673] ERROR django.server "GET /login/ HTTP/1.1" 500 88723
+[2026-05-08 18:19:45,854] ERROR django.request Internal Server Error: /login/
+Traceback (most recent call last):
+  File "C:\Python314\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Python314\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Projects\ShipProject\ShipProject\projects\vitmaps\tracking_app\views.py", line 322, in login_view
+    return render(request, 'login.html')
+  File "C:\Python314\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: login.html
+[2026-05-08 18:19:45,864] ERROR django.server "GET /login/ HTTP/1.1" 500 88723
+[2026-05-08 18:19:46,438] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-08 18:19:46,556] ERROR django.request Internal Server Error: /login/
+Traceback (most recent call last):
+  File "C:\Python314\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Python314\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Projects\ShipProject\ShipProject\projects\vitmaps\tracking_app\views.py", line 322, in login_view
+    return render(request, 'login.html')
+  File "C:\Python314\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: login.html
+[2026-05-08 18:19:46,585] ERROR django.server "GET /login/ HTTP/1.1" 500 88723
+[2026-05-08 18:49:41,502] ERROR django.request Internal Server Error: /user_map_auth/
+Traceback (most recent call last):
+  File "C:\Python314\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Python314\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Projects\ShipProject\ShipProject\projects\vitmaps\tracking_app\views.py", line 460, in user_map_auth_view
+    headers = {{
+              ^^
+    ...<2 lines>...
+    }}
+    ^^
+TypeError: cannot use 'dict' as a set element (unhashable type: 'dict')
+[2026-05-08 18:49:41,791] ERROR django.server "GET /user_map_auth/?live_vessel_id=118&_=1778246381407 HTTP/1.1" 500 75071
+[2026-05-08 18:53:02,619] ERROR django.request Internal Server Error: /user_map_auth/
+Traceback (most recent call last):
+  File "C:\Python314\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Python314\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Projects\ShipProject\ShipProject\projects\vitmaps\tracking_app\views.py", line 582, in user_map_auth_view
+    return render(request, 'user_map_auth.html', {{
+                                                 ^^
+        'map_auth_html': "No vessel data available."
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    }})
+    ^^
+TypeError: cannot use 'dict' as a set element (unhashable type: 'dict')
+[2026-05-08 18:53:02,672] ERROR django.server "GET /user_map_auth/?live_vessel_id=118&_=1778246578821 HTTP/1.1" 500 77566
+[2026-05-08 18:53:19,323] ERROR django.request Internal Server Error: /user_map_auth/
+Traceback (most recent call last):
+  File "C:\Python314\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Python314\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Projects\ShipProject\ShipProject\projects\vitmaps\tracking_app\views.py", line 582, in user_map_auth_view
+    return render(request, 'user_map_auth.html', {{
+                                                 ^^
+        'map_auth_html': "No vessel data available."
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    }})
+    ^^
+TypeError: cannot use 'dict' as a set element (unhashable type: 'dict')
+[2026-05-08 18:53:19,339] ERROR django.server "GET /user_map_auth/ HTTP/1.1" 500 76662
+[2026-05-08 18:58:44,214] WARNING tracking_app.views user_map_auth_view: Associated Vessels API error status=401
+[2026-05-08 19:05:11,440] WARNING tracking_app.views user_map_auth_view: poll API failed status=401 vessel_id=1
+[2026-05-08 19:05:13,001] WARNING tracking_app.views user_map_auth_view: poll API failed status=401 vessel_id=2
+[2026-05-08 19:05:14,200] WARNING tracking_app.views user_map_auth_view: poll API failed status=401 vessel_id=3
+[2026-05-08 19:05:14,402] ERROR django.request Internal Server Error: /login/
+Traceback (most recent call last):
+  File "C:\Python314\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Python314\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Projects\ShipProject\ShipProject\projects\vitmaps\tracking_app\views.py", line 326, in login_view
+    return render(request, 'login.html')
+  File "C:\Python314\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: login.html
+[2026-05-08 19:05:14,417] ERROR django.server "GET /login/?next=/user_map_auth/%3Flive_vessel_id%3D112%26_%3D1778247314206 HTTP/1.1" 500 89597
+[2026-05-08 19:05:14,711] ERROR django.request Internal Server Error: /login/
+Traceback (most recent call last):
+  File "C:\Python314\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Python314\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Projects\ShipProject\ShipProject\projects\vitmaps\tracking_app\views.py", line 326, in login_view
+    return render(request, 'login.html')
+  File "C:\Python314\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: login.html
+[2026-05-08 19:05:14,715] ERROR django.server "GET /login/?next=/user_map_auth/%3Flive_vessel_id%3D116%26_%3D1778247314449 HTTP/1.1" 500 89597
+[2026-05-08 19:05:14,893] ERROR django.request Internal Server Error: /login/
+Traceback (most recent call last):
+  File "C:\Python314\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Python314\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Projects\ShipProject\ShipProject\projects\vitmaps\tracking_app\views.py", line 326, in login_view
+    return render(request, 'login.html')
+  File "C:\Python314\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: login.html
+[2026-05-08 19:05:14,925] ERROR django.server "GET /login/?next=/user_map_auth/%3Flive_vessel_id%3D115%26_%3D1778247314721 HTTP/1.1" 500 89597
+[2026-05-08 19:05:15,175] ERROR django.request Internal Server Error: /login/
+Traceback (most recent call last):
+  File "C:\Python314\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Python314\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Projects\ShipProject\ShipProject\projects\vitmaps\tracking_app\views.py", line 326, in login_view
+    return render(request, 'login.html')
+  File "C:\Python314\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: login.html
+[2026-05-08 19:05:15,185] ERROR django.server "GET /login/?next=/user_map_auth/%3Flive_vessel_id%3D1%26_%3D1778247314910 HTTP/1.1" 500 89579
+[2026-05-08 19:05:15,418] ERROR django.request Internal Server Error: /login/
+Traceback (most recent call last):
+  File "C:\Python314\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Python314\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Projects\ShipProject\ShipProject\projects\vitmaps\tracking_app\views.py", line 326, in login_view
+    return render(request, 'login.html')
+  File "C:\Python314\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: login.html
+[2026-05-08 19:05:15,425] ERROR django.server "GET /login/?next=/user_map_auth/%3Flive_vessel_id%3D2%26_%3D1778247315192 HTTP/1.1" 500 89579
+[2026-05-08 19:05:15,673] ERROR django.request Internal Server Error: /login/
+Traceback (most recent call last):
+  File "C:\Python314\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Python314\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Projects\ShipProject\ShipProject\projects\vitmaps\tracking_app\views.py", line 326, in login_view
+    return render(request, 'login.html')
+  File "C:\Python314\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: login.html
+[2026-05-08 19:05:15,694] ERROR django.server "GET /login/?next=/user_map_auth/%3Flive_vessel_id%3D3%26_%3D1778247315431 HTTP/1.1" 500 89579
+[2026-05-08 19:05:15,901] ERROR django.request Internal Server Error: /login/
+Traceback (most recent call last):
+  File "C:\Python314\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Python314\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Projects\ShipProject\ShipProject\projects\vitmaps\tracking_app\views.py", line 326, in login_view
+    return render(request, 'login.html')
+  File "C:\Python314\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: login.html
+[2026-05-08 19:05:15,909] ERROR django.server "GET /login/?next=/user_map_auth/%3Flive_vessel_id%3D112%26_%3D1778247315683 HTTP/1.1" 500 89597
+[2026-05-08 19:05:16,129] ERROR django.request Internal Server Error: /login/
+Traceback (most recent call last):
+  File "C:\Python314\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Python314\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Projects\ShipProject\ShipProject\projects\vitmaps\tracking_app\views.py", line 326, in login_view
+    return render(request, 'login.html')
+  File "C:\Python314\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: login.html
+[2026-05-08 19:05:16,135] ERROR django.server "GET /login/?next=/user_map_auth/%3Flive_vessel_id%3D116%26_%3D1778247315919 HTTP/1.1" 500 89597
+[2026-05-08 19:05:16,390] ERROR django.request Internal Server Error: /login/
+Traceback (most recent call last):
+  File "C:\Python314\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Python314\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Projects\ShipProject\ShipProject\projects\vitmaps\tracking_app\views.py", line 326, in login_view
+    return render(request, 'login.html')
+  File "C:\Python314\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: login.html
+[2026-05-08 19:05:16,397] ERROR django.server "GET /login/?next=/user_map_auth/%3Flive_vessel_id%3D115%26_%3D1778247316142 HTTP/1.1" 500 89597
+[2026-05-08 19:05:27,494] WARNING tracking_app.views user_map_auth_view: Associated Vessels API error status=401
+[2026-05-08 19:05:59,397] WARNING tracking_app.views user_map_auth_view: poll API failed status=401 vessel_id=1
+[2026-05-08 19:06:00,549] WARNING tracking_app.views user_map_auth_view: poll API failed status=401 vessel_id=2
+[2026-05-08 19:06:01,457] WARNING tracking_app.views user_map_auth_view: poll API failed status=401 vessel_id=3
+[2026-05-08 19:06:02,614] WARNING tracking_app.views user_map_auth_view: poll API failed status=401 vessel_id=112
+[2026-05-08 19:06:03,914] WARNING tracking_app.views user_map_auth_view: poll API failed status=401 vessel_id=116
+[2026-05-08 19:06:06,182] WARNING tracking_app.views user_map_auth_view: poll API failed status=401 vessel_id=115
+[2026-05-08 19:10:42,398] ERROR django.request Internal Server Error: /login/
+Traceback (most recent call last):
+  File "C:\Python314\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Python314\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Projects\ShipProject\ShipProject\projects\vitmaps\tracking_app\views.py", line 368, in login_view
+    return render(request, 'login.html')
+  File "C:\Python314\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: login.html
+[2026-05-08 19:10:42,415] ERROR django.server "GET /login/?next=/user_map_auth/%3Flive_vessel_id%3D3%26_%3D1778247642202 HTTP/1.1" 500 89583
+[2026-05-08 19:10:42,604] ERROR django.request Internal Server Error: /login/
+Traceback (most recent call last):
+  File "C:\Python314\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Python314\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Projects\ShipProject\ShipProject\projects\vitmaps\tracking_app\views.py", line 368, in login_view
+    return render(request, 'login.html')
+  File "C:\Python314\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: login.html
+[2026-05-08 19:10:42,612] ERROR django.server "GET /login/?next=/user_map_auth/%3Flive_vessel_id%3D112%26_%3D1778247642458 HTTP/1.1" 500 89601
+[2026-05-08 19:10:42,762] ERROR django.request Internal Server Error: /login/
+Traceback (most recent call last):
+  File "C:\Python314\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Python314\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Projects\ShipProject\ShipProject\projects\vitmaps\tracking_app\views.py", line 368, in login_view
+    return render(request, 'login.html')
+  File "C:\Python314\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: login.html
+[2026-05-08 19:10:42,768] ERROR django.server "GET /login/?next=/user_map_auth/%3Flive_vessel_id%3D116%26_%3D1778247642615 HTTP/1.1" 500 89601
+[2026-05-08 19:10:42,932] ERROR django.request Internal Server Error: /login/
+Traceback (most recent call last):
+  File "C:\Python314\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Python314\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Projects\ShipProject\ShipProject\projects\vitmaps\tracking_app\views.py", line 368, in login_view
+    return render(request, 'login.html')
+  File "C:\Python314\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: login.html
+[2026-05-08 19:10:42,937] ERROR django.server "GET /login/?next=/user_map_auth/%3Flive_vessel_id%3D115%26_%3D1778247642774 HTTP/1.1" 500 89601
+[2026-05-08 19:11:08,033] WARNING tracking_app.views user_map_auth_view: API error 401
+[2026-05-08 19:11:08,033] WARNING tracking_app.views user_map_auth_view: no vessel data available
+[2026-05-08 19:11:49,466] WARNING tracking_app.views user_map_auth_view: Associated Vessels API error status=401
+[2026-05-08 19:12:26,037] WARNING tracking_app.views user_map_auth_view: Associated Vessels API error status=401
+[2026-05-08 19:14:16,485] WARNING tracking_app.views user_map_auth_view: Associated Vessels Error: 401
+[2026-05-08 19:14:16,521] WARNING tracking_app.views user_map_auth_view: showing map error message=Associated Vessels Error: 401
+[2026-05-08 19:32:47,049] WARNING tracking_app.views user_map_auth_view: Associated Vessels Error: 401
+[2026-05-08 19:32:47,126] WARNING tracking_app.views user_map_auth_view: showing map error message=Associated Vessels Error: 401
