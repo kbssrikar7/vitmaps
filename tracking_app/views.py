@@ -371,9 +371,9 @@ def user_map_auth_view(request):
         logger.warning("user_map_auth_view: unauthenticated request redirected to login")
         return redirect('login')
 
-    user_ID =4 
+    user_ID =1 
 
-    b_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjYsInVzZXJuYW1lIjoiQWRtaW4iLCJpYXQiOjE3Nzg0Nzc2OTksImV4cCI6MTc3ODQ3OTQ5OX0.rvsL1474hrN8UzTsXra1ZY9UwEGC1cYGV4UYCO19DHc"
+    b_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjYsInVzZXJuYW1lIjoiQWRtaW4iLCJpYXQiOjE3Nzg0Nzk4ODcsImV4cCI6MTc3ODQ4MTY4N30.bDf8FL9pshIrESMgep-CZnp_CWNZgxvqZuk6FEh8CsI"
 
     vessels_raw = request.session.get("auth_vessels_data", [])
     last_fetch = request.session.get("auth_vessels_last_fetch", 0)
@@ -555,7 +555,7 @@ def user_map_auth_view(request):
             or vessel_name
         )
 
-        # IMPORTANT
+        # IMPORTANT ----------------------------------------------
         # YOUR API LAT/LNG WERE REVERSED
         # FIXED HERE
 

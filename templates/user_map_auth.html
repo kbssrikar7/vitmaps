@@ -141,22 +141,6 @@
 
             <!-- BUTTONS -->
             <div class="top-buttons">
-                <div class="dropdown d-inline-block">
-                    <button class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Speed
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end shadow border-0"
-                        style="border-radius: 12px; min-width: 100px;">
-                        <li><a class="dropdown-item py-2" href="javascript:void(0)" onclick="setMapSpeed(2000)">0.5x</a>
-                        </li>
-                        <li><a class="dropdown-item py-2" href="javascript:void(0)" onclick="setMapSpeed(1000)">1x
-                                (Default)</a></li>
-                        <li><a class="dropdown-item py-2" href="javascript:void(0)" onclick="setMapSpeed(500)">2x</a>
-                        </li>
-                        <li><a class="dropdown-item py-2" href="javascript:void(0)" onclick="setMapSpeed(200)">5x</a>
-                        </li>
-                    </ul>
-                </div>
                 <button onclick="alert('Dashboard')">Dashboard</button>
                 <button onclick="window.location.href='{% url 'user_map_auth' %}'">MAP</button>
                 <button onclick="alert('Vessels')">Vessels</button>
@@ -253,15 +237,6 @@
 
     <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
     <script>
-        // Bridge function to call speed control inside folium iframe
-        function setMapSpeed(ms) {
-            const iframe = document.querySelector('#map-wrapper iframe');
-            if (iframe && iframe.contentWindow && iframe.contentWindow.setMapSpeed) {
-                iframe.contentWindow.setMapSpeed(ms);
-            } else {
-                console.warn("Map iframe or setMapSpeed function not ready yet.");
-            }
-        }
 
         function fixMap() {
             const iframe = document.querySelector('#map-wrapper iframe');
