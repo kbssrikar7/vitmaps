@@ -612,11 +612,13 @@ def user_map_auth_view(request):
 
     for i, route in enumerate(routes.values()):
 
+        path_len = len(route["path"])
+
         vessel_js_array.append({
             "name": route["name"],
             "color": dark_colors[i % len(dark_colors)],
             "route": route["path"],
-            "currentIndex": 0,
+            "currentIndex": path_len - 1 if path_len > 0 else 0,
             "visible": True
         })
 
@@ -902,20 +904,21 @@ def user_map_auth_view(request):
 
             if(v.route.length === 0) return;
 
-            let start = v.route[0];
+            // USE THE CURRENT INDEX (which we set to the end in Python)
+            let current = v.route[v.currentIndex];
 
             let marker = L.marker(
-                [start.lat, start.lng],
+                [current.lat, current.lng],
                 {{
                     icon:createIcon(v.color)
                 }}
             ).addTo(map);
 
             marker.bindPopup(
-                getPopupHTML(start, v.name)
+                getPopupHTML(current, v.name)
             );
 
-            // FULL ROUTE POLYLINE
+            // FULL ROUTE POLYLINE (Historical Trace)
             let fullPolyline = L.polyline(
                 v.route.map(p => [p.lat, p.lng]),
                 {{
@@ -926,9 +929,13 @@ def user_map_auth_view(request):
                 }}
             ).addTo(map);
 
-            // LIVE REPLAY LINE
+            // LIVE REPLAY LINE (Shows history up to the current point)
+            let replayPath = v.route
+                .slice(0, v.currentIndex + 1)
+                .map(p => [p.lat, p.lng]);
+
             let replayPolyline = L.polyline(
-                [[start.lat, start.lng]],
+                replayPath,
                 {{
                     color:v.color,
                     weight:5,
