@@ -5160,3 +5160,253 @@ NameError: name 'dt' is not defined
 [2026-05-11 11:41:56,881] INFO tracking_app.views Rendering template
 [2026-05-11 11:41:57,034] INFO django.server "GET /user_map_auth/ HTTP/1.1" 200 92183
 [2026-05-11 11:44:41,882] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-05-11 11:44:54,736] INFO tracking_app.views allmaps_view: request started
+[2026-05-11 11:44:54,764] INFO tracking_app.views allmaps_view: loaded 1113 records from session
+[2026-05-11 11:44:54,776] INFO tracking_app.views allmaps_view: creating base map
+[2026-05-11 11:44:54,779] INFO tracking_app.views allmaps_view: adding tile layers
+[2026-05-11 11:44:54,840] INFO tracking_app.views allmaps_view: grouping vessel records into routes
+[2026-05-11 11:44:55,024] INFO tracking_app.views allmaps_view: route grouping complete route_count=10
+[2026-05-11 11:44:55,026] INFO tracking_app.views allmaps_view: preparing vessel JavaScript data
+[2026-05-11 11:44:55,040] INFO tracking_app.views allmaps_view: building map JavaScript
+[2026-05-11 11:44:55,206] INFO tracking_app.views allmaps_view: rendering template
+[2026-05-11 11:44:55,331] INFO django.server "GET / HTTP/1.1" 200 607247
+[2026-05-11 11:44:56,088] WARNING django.request Not Found: /favicon.ico
+[2026-05-11 11:44:56,095] WARNING django.server "GET /favicon.ico HTTP/1.1" 404 4285
+[2026-05-11 11:45:02,562] INFO tracking_app.views logout_view: logging out user_id=3
+[2026-05-11 11:45:02,703] INFO tracking_app.views logout_view: redirecting to allmaps
+[2026-05-11 11:45:02,705] INFO django.server "GET /logout/ HTTP/1.1" 302 0
+[2026-05-11 11:45:02,712] INFO tracking_app.views allmaps_view: request started
+[2026-05-11 11:45:02,713] INFO tracking_app.views allmaps_view: loaded 0 records from session
+[2026-05-11 11:45:02,713] INFO tracking_app.views allmaps_view: fetching vessel data from API url=https://shiptrackingapi-787201059405.asia-south2.run.app/VesselTracking/GetAll
+[2026-05-11 11:45:03,721] INFO tracking_app.views allmaps_view: API response status_code=200
+[2026-05-11 11:45:03,727] INFO tracking_app.views allmaps_view: API records loaded count=1113
+[2026-05-11 11:45:03,728] INFO tracking_app.views allmaps_view: stored records in session count=1113
+[2026-05-11 11:45:03,730] INFO tracking_app.views allmaps_view: creating base map
+[2026-05-11 11:45:03,731] INFO tracking_app.views allmaps_view: adding tile layers
+[2026-05-11 11:45:03,755] INFO tracking_app.views allmaps_view: grouping vessel records into routes
+[2026-05-11 11:45:03,763] INFO tracking_app.views allmaps_view: route grouping complete route_count=10
+[2026-05-11 11:45:03,764] INFO tracking_app.views allmaps_view: preparing vessel JavaScript data
+[2026-05-11 11:45:03,764] INFO tracking_app.views allmaps_view: building map JavaScript
+[2026-05-11 11:45:03,843] INFO tracking_app.views allmaps_view: rendering template
+[2026-05-11 11:45:04,021] INFO django.server "GET / HTTP/1.1" 200 607204
+[2026-05-11 11:45:10,799] INFO tracking_app.views login_view: request method=POST
+[2026-05-11 11:45:10,800] INFO tracking_app.views login_view: authenticating username=Admin
+[2026-05-11 11:45:12,133] INFO tracking_app.views login_view: authentication success username=Admin
+[2026-05-11 11:45:12,547] INFO django.server "POST /login/ HTTP/1.1" 200 52
+[2026-05-11 11:45:12,582] INFO tracking_app.views user_map_auth_view: request started user_authenticated=True
+[2026-05-11 11:45:14,531] INFO tracking_app.views Rendering template
+[2026-05-11 11:45:14,770] INFO django.server "GET /user_map_auth/ HTTP/1.1" 200 90693
+[2026-05-11 11:45:20,297] INFO tracking_app.views logout_view: logging out user_id=3
+[2026-05-11 11:45:20,405] INFO tracking_app.views logout_view: redirecting to allmaps
+[2026-05-11 11:45:20,406] INFO django.server "GET /logout/ HTTP/1.1" 302 0
+[2026-05-11 11:45:20,410] INFO tracking_app.views allmaps_view: request started
+[2026-05-11 11:45:20,411] INFO tracking_app.views allmaps_view: loaded 0 records from session
+[2026-05-11 11:45:20,411] INFO tracking_app.views allmaps_view: fetching vessel data from API url=https://shiptrackingapi-787201059405.asia-south2.run.app/VesselTracking/GetAll
+[2026-05-11 11:45:21,483] INFO tracking_app.views allmaps_view: API response status_code=200
+[2026-05-11 11:45:21,543] INFO tracking_app.views allmaps_view: API records loaded count=1113
+[2026-05-11 11:45:21,551] INFO tracking_app.views allmaps_view: stored records in session count=1113
+[2026-05-11 11:45:21,554] INFO tracking_app.views allmaps_view: creating base map
+[2026-05-11 11:45:21,557] INFO tracking_app.views allmaps_view: adding tile layers
+[2026-05-11 11:45:21,592] INFO tracking_app.views allmaps_view: grouping vessel records into routes
+[2026-05-11 11:45:21,622] INFO tracking_app.views allmaps_view: route grouping complete route_count=10
+[2026-05-11 11:45:21,626] INFO tracking_app.views allmaps_view: preparing vessel JavaScript data
+[2026-05-11 11:45:21,626] INFO tracking_app.views allmaps_view: building map JavaScript
+[2026-05-11 11:45:21,914] INFO tracking_app.views allmaps_view: rendering template
+[2026-05-11 11:45:22,284] INFO django.server "GET / HTTP/1.1" 200 607204
+[2026-05-11 11:46:27,465] INFO tracking_app.views login_view: request method=POST
+[2026-05-11 11:46:27,497] INFO tracking_app.views login_view: authenticating username=Admin
+[2026-05-11 11:46:28,824] INFO tracking_app.views login_view: authentication success username=Admin
+[2026-05-11 11:46:29,361] INFO django.server "POST /login/ HTTP/1.1" 200 52
+[2026-05-11 11:46:29,623] INFO tracking_app.views user_map_auth_view: request started user_authenticated=True
+[2026-05-11 11:46:31,436] INFO tracking_app.views Rendering template
+[2026-05-11 11:46:31,610] INFO django.server "GET /user_map_auth/ HTTP/1.1" 200 90693
+[2026-05-11 11:54:21,762] INFO tracking_app.views user_map_auth_view: request started user_authenticated=True
+[2026-05-11 11:54:23,695] INFO tracking_app.views Rendering template
+[2026-05-11 11:54:23,941] INFO django.server "GET /user_map_auth/ HTTP/1.1" 200 90693
+[2026-05-11 11:54:51,078] INFO tracking_app.views logout_view: logging out user_id=3
+[2026-05-11 11:54:51,227] INFO tracking_app.views logout_view: redirecting to allmaps
+[2026-05-11 11:54:51,242] INFO django.server "GET /logout/ HTTP/1.1" 302 0
+[2026-05-11 11:54:51,282] INFO tracking_app.views allmaps_view: request started
+[2026-05-11 11:54:51,287] INFO tracking_app.views allmaps_view: loaded 0 records from session
+[2026-05-11 11:54:51,288] INFO tracking_app.views allmaps_view: fetching vessel data from API url=https://shiptrackingapi-787201059405.asia-south2.run.app/VesselTracking/GetAll
+[2026-05-11 11:54:53,011] INFO tracking_app.views allmaps_view: API response status_code=200
+[2026-05-11 11:54:53,022] INFO tracking_app.views allmaps_view: API records loaded count=1113
+[2026-05-11 11:54:53,026] INFO tracking_app.views allmaps_view: stored records in session count=1113
+[2026-05-11 11:54:53,038] INFO tracking_app.views allmaps_view: creating base map
+[2026-05-11 11:54:53,078] INFO tracking_app.views allmaps_view: adding tile layers
+[2026-05-11 11:54:53,147] INFO tracking_app.views allmaps_view: grouping vessel records into routes
+[2026-05-11 11:54:53,162] INFO tracking_app.views allmaps_view: route grouping complete route_count=10
+[2026-05-11 11:54:53,174] INFO tracking_app.views allmaps_view: preparing vessel JavaScript data
+[2026-05-11 11:54:53,177] INFO tracking_app.views allmaps_view: building map JavaScript
+[2026-05-11 11:54:53,445] INFO tracking_app.views allmaps_view: rendering template
+[2026-05-11 11:54:53,760] INFO django.server "GET / HTTP/1.1" 200 607204
+[2026-05-11 11:55:51,670] INFO tracking_app.views allmaps_view: request started
+[2026-05-11 11:55:51,688] INFO tracking_app.views allmaps_view: loaded 1113 records from session
+[2026-05-11 11:55:51,689] INFO tracking_app.views allmaps_view: creating base map
+[2026-05-11 11:55:51,693] INFO tracking_app.views allmaps_view: adding tile layers
+[2026-05-11 11:55:51,711] INFO tracking_app.views allmaps_view: grouping vessel records into routes
+[2026-05-11 11:55:51,721] INFO tracking_app.views allmaps_view: route grouping complete route_count=10
+[2026-05-11 11:55:51,722] INFO tracking_app.views allmaps_view: preparing vessel JavaScript data
+[2026-05-11 11:55:51,723] INFO tracking_app.views allmaps_view: building map JavaScript
+[2026-05-11 11:55:51,809] INFO tracking_app.views allmaps_view: rendering template
+[2026-05-11 11:55:51,878] INFO django.server "GET / HTTP/1.1" 200 607204
+[2026-05-11 11:55:57,467] INFO tracking_app.views login_view: request method=POST
+[2026-05-11 11:55:57,468] INFO tracking_app.views login_view: authenticating username=Admin
+[2026-05-11 11:55:59,577] INFO tracking_app.views login_view: authentication success username=Admin
+[2026-05-11 11:56:00,018] INFO django.server "POST /login/ HTTP/1.1" 200 52
+[2026-05-11 11:56:00,154] INFO tracking_app.views user_map_auth_view: request started user_authenticated=True
+[2026-05-11 11:56:02,342] INFO tracking_app.views Rendering template
+[2026-05-11 11:56:02,522] INFO django.server "GET /user_map_auth/ HTTP/1.1" 200 90693
+[2026-05-11 11:58:08,430] INFO tracking_app.views user_map_auth_view: request started user_authenticated=True
+[2026-05-11 11:58:08,507] INFO tracking_app.views Rendering template
+[2026-05-11 11:58:08,554] INFO django.server "GET /user_map_auth/ HTTP/1.1" 200 90693
+[2026-05-11 12:17:15,580] INFO tracking_app.views logout_view: logging out user_id=3
+[2026-05-11 12:17:15,736] INFO tracking_app.views logout_view: redirecting to allmaps
+[2026-05-11 12:17:15,744] INFO django.server "GET /logout/ HTTP/1.1" 302 0
+[2026-05-11 12:17:15,761] INFO tracking_app.views allmaps_view: request started
+[2026-05-11 12:17:15,761] INFO tracking_app.views allmaps_view: loaded 0 records from session
+[2026-05-11 12:17:15,761] INFO tracking_app.views allmaps_view: fetching vessel data from API url=https://shiptrackingapi-787201059405.asia-south2.run.app/VesselTracking/GetAll
+[2026-05-11 12:17:18,104] INFO tracking_app.views allmaps_view: API response status_code=200
+[2026-05-11 12:17:18,109] INFO tracking_app.views allmaps_view: API records loaded count=1113
+[2026-05-11 12:17:18,109] INFO tracking_app.views allmaps_view: stored records in session count=1113
+[2026-05-11 12:17:18,109] INFO tracking_app.views allmaps_view: creating base map
+[2026-05-11 12:17:18,121] INFO tracking_app.views allmaps_view: adding tile layers
+[2026-05-11 12:17:18,136] INFO tracking_app.views allmaps_view: grouping vessel records into routes
+[2026-05-11 12:17:18,205] INFO tracking_app.views allmaps_view: route grouping complete route_count=10
+[2026-05-11 12:17:18,205] INFO tracking_app.views allmaps_view: preparing vessel JavaScript data
+[2026-05-11 12:17:18,205] INFO tracking_app.views allmaps_view: building map JavaScript
+[2026-05-11 12:17:18,267] INFO tracking_app.views allmaps_view: rendering template
+[2026-05-11 12:17:18,429] INFO django.server "GET / HTTP/1.1" 200 607204
+[2026-05-11 12:17:19,109] INFO django.server "GET /static/css/bootstrap.min.css HTTP/1.1" 200 232873
+[2026-05-11 12:17:21,859] INFO tracking_app.views allmaps_view: request started
+[2026-05-11 12:17:21,896] INFO tracking_app.views allmaps_view: loaded 1113 records from session
+[2026-05-11 12:17:21,897] INFO tracking_app.views allmaps_view: creating base map
+[2026-05-11 12:17:21,939] INFO tracking_app.views allmaps_view: adding tile layers
+[2026-05-11 12:17:21,973] INFO tracking_app.views allmaps_view: grouping vessel records into routes
+[2026-05-11 12:17:21,976] INFO tracking_app.views allmaps_view: route grouping complete route_count=10
+[2026-05-11 12:17:21,982] INFO tracking_app.views allmaps_view: preparing vessel JavaScript data
+[2026-05-11 12:17:21,983] INFO tracking_app.views allmaps_view: building map JavaScript
+[2026-05-11 12:17:22,074] INFO tracking_app.views allmaps_view: rendering template
+[2026-05-11 12:17:22,107] INFO django.server "GET / HTTP/1.1" 200 607204
+[2026-05-11 12:42:56,415] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-05-11 12:43:09,466] INFO tracking_app.views allmaps_view: request started
+[2026-05-11 12:43:09,529] INFO tracking_app.views allmaps_view: loaded 1113 records from session
+[2026-05-11 12:43:09,535] INFO tracking_app.views allmaps_view: creating base map
+[2026-05-11 12:43:09,538] INFO tracking_app.views allmaps_view: adding tile layers
+[2026-05-11 12:43:09,627] INFO tracking_app.views allmaps_view: grouping vessel records into routes
+[2026-05-11 12:43:09,688] INFO tracking_app.views allmaps_view: route grouping complete route_count=10
+[2026-05-11 12:43:09,701] INFO tracking_app.views allmaps_view: preparing vessel JavaScript data
+[2026-05-11 12:43:09,731] INFO tracking_app.views allmaps_view: building map JavaScript
+[2026-05-11 12:43:10,203] INFO tracking_app.views allmaps_view: rendering template
+[2026-05-11 12:43:10,363] INFO django.server "GET / HTTP/1.1" 200 607204
+[2026-05-11 12:43:17,492] INFO tracking_app.views login_view: request method=POST
+[2026-05-11 12:43:17,541] INFO tracking_app.views login_view: authenticating username=Admin
+[2026-05-11 12:43:22,917] INFO tracking_app.views login_view: authentication success username=Admin
+[2026-05-11 12:43:23,442] INFO django.server "POST /login/ HTTP/1.1" 200 52
+[2026-05-11 12:43:23,538] INFO tracking_app.views user_map_auth_view: request started user_authenticated=True
+[2026-05-11 12:43:35,349] INFO tracking_app.views Rendering template
+[2026-05-11 12:43:35,597] INFO django.server "GET /user_map_auth/ HTTP/1.1" 200 90693
+[2026-05-11 13:15:33,020] INFO django.utils.autoreload D:\Projects\ShipProject\ShipProject\projects\vitmaps\tracking_app\views.py changed, reloading.
+[2026-05-11 13:15:42,526] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-05-11 13:15:53,435] INFO tracking_app.views logout_view: logging out user_id=3
+[2026-05-11 13:15:53,877] INFO tracking_app.views logout_view: redirecting to allmaps
+[2026-05-11 13:15:53,930] INFO django.server "GET /logout/ HTTP/1.1" 302 0
+[2026-05-11 13:15:53,986] INFO tracking_app.views allmaps_view: request started
+[2026-05-11 13:15:53,987] INFO tracking_app.views allmaps_view: loaded 0 records from session
+[2026-05-11 13:15:53,989] INFO tracking_app.views allmaps_view: fetching vessel data from API url=https://shiptrackingapi-787201059405.asia-south2.run.app/VesselTracking/GetAll
+[2026-05-11 13:16:00,759] INFO tracking_app.views allmaps_view: API response status_code=200
+[2026-05-11 13:16:00,776] INFO tracking_app.views allmaps_view: API records loaded count=1202
+[2026-05-11 13:16:00,783] INFO tracking_app.views allmaps_view: stored records in session count=1202
+[2026-05-11 13:16:00,786] INFO tracking_app.views allmaps_view: creating base map
+[2026-05-11 13:16:00,791] INFO tracking_app.views allmaps_view: adding tile layers
+[2026-05-11 13:16:00,827] INFO tracking_app.views allmaps_view: grouping vessel records into routes
+[2026-05-11 13:16:00,848] INFO tracking_app.views allmaps_view: route grouping complete route_count=11
+[2026-05-11 13:16:00,850] INFO tracking_app.views allmaps_view: preparing vessel JavaScript data
+[2026-05-11 13:16:00,860] INFO tracking_app.views allmaps_view: building map JavaScript
+[2026-05-11 13:16:01,160] INFO tracking_app.views allmaps_view: rendering template
+[2026-05-11 13:16:01,474] INFO django.server "GET / HTTP/1.1" 200 653432
+[2026-05-11 13:16:12,006] INFO tracking_app.views allmaps_view: request started
+[2026-05-11 13:16:12,352] INFO tracking_app.views allmaps_view: loaded 1202 records from session
+[2026-05-11 13:16:12,353] INFO tracking_app.views allmaps_view: creating base map
+[2026-05-11 13:16:12,441] INFO tracking_app.views allmaps_view: adding tile layers
+[2026-05-11 13:16:12,786] INFO tracking_app.views allmaps_view: grouping vessel records into routes
+[2026-05-11 13:16:12,822] INFO tracking_app.views allmaps_view: route grouping complete route_count=11
+[2026-05-11 13:16:12,823] INFO tracking_app.views allmaps_view: preparing vessel JavaScript data
+[2026-05-11 13:16:12,833] INFO tracking_app.views allmaps_view: building map JavaScript
+[2026-05-11 13:16:13,789] INFO tracking_app.views allmaps_view: rendering template
+[2026-05-11 13:16:14,017] INFO django.server "GET / HTTP/1.1" 200 653432
+[2026-05-11 13:16:17,718] INFO tracking_app.views login_view: request method=POST
+[2026-05-11 13:16:17,754] INFO tracking_app.views login_view: authenticating username=Admin
+[2026-05-11 13:16:23,493] INFO tracking_app.views login_view: authentication success username=Admin
+[2026-05-11 13:16:24,257] INFO django.server "POST /login/ HTTP/1.1" 200 52
+[2026-05-11 13:16:24,516] INFO tracking_app.views user_map_auth_view: request started user_authenticated=True
+[2026-05-11 13:16:37,434] INFO tracking_app.views Rendering template
+[2026-05-11 13:16:37,712] INFO django.server "GET /user_map_auth/ HTTP/1.1" 200 90693
+[2026-05-11 13:47:01,660] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-05-11 13:47:17,655] INFO tracking_app.views logout_view: logging out user_id=3
+[2026-05-11 13:47:17,892] INFO tracking_app.views logout_view: redirecting to allmaps
+[2026-05-11 13:47:18,080] INFO django.server "GET /logout/ HTTP/1.1" 302 0
+[2026-05-11 13:47:19,647] INFO tracking_app.views allmaps_view: request started
+[2026-05-11 13:47:19,652] INFO tracking_app.views allmaps_view: loaded 0 records from session
+[2026-05-11 13:47:19,653] INFO tracking_app.views allmaps_view: fetching vessel data from API url=https://shiptrackingapi-787201059405.asia-south2.run.app/VesselTracking/GetAll
+[2026-05-11 13:47:24,884] INFO tracking_app.views allmaps_view: API response status_code=200
+[2026-05-11 13:47:24,895] INFO tracking_app.views allmaps_view: API records loaded count=1202
+[2026-05-11 13:47:24,896] INFO tracking_app.views allmaps_view: stored records in session count=1202
+[2026-05-11 13:47:24,896] INFO tracking_app.views allmaps_view: creating base map
+[2026-05-11 13:47:24,898] INFO tracking_app.views allmaps_view: adding tile layers
+[2026-05-11 13:47:24,922] INFO tracking_app.views allmaps_view: grouping vessel records into routes
+[2026-05-11 13:47:24,930] INFO tracking_app.views allmaps_view: route grouping complete route_count=11
+[2026-05-11 13:47:24,931] INFO tracking_app.views allmaps_view: preparing vessel JavaScript data
+[2026-05-11 13:47:24,931] INFO tracking_app.views allmaps_view: building map JavaScript
+[2026-05-11 13:47:25,168] INFO tracking_app.views allmaps_view: rendering template
+[2026-05-11 13:47:25,546] INFO django.server "GET / HTTP/1.1" 200 653528
+[2026-05-11 13:47:36,794] INFO tracking_app.views login_view: request method=POST
+[2026-05-11 13:47:36,795] INFO tracking_app.views login_view: authenticating username=Admin
+[2026-05-11 13:47:39,539] INFO tracking_app.views login_view: authentication success username=Admin
+[2026-05-11 13:47:40,369] INFO django.server "POST /login/ HTTP/1.1" 200 52
+[2026-05-11 13:47:40,674] INFO tracking_app.views user_map_auth_view: request started user_authenticated=True
+[2026-05-11 13:47:43,305] INFO tracking_app.views Rendering template
+[2026-05-11 13:47:43,328] INFO django.server "GET /user_map_auth/ HTTP/1.1" 200 40067
+[2026-05-11 13:47:47,368] INFO tracking_app.views logout_view: logging out user_id=3
+[2026-05-11 13:47:47,502] INFO tracking_app.views logout_view: redirecting to allmaps
+[2026-05-11 13:47:47,516] INFO django.server "GET /logout/ HTTP/1.1" 302 0
+[2026-05-11 13:47:47,528] INFO tracking_app.views allmaps_view: request started
+[2026-05-11 13:47:47,529] INFO tracking_app.views allmaps_view: loaded 0 records from session
+[2026-05-11 13:47:47,531] INFO tracking_app.views allmaps_view: fetching vessel data from API url=https://shiptrackingapi-787201059405.asia-south2.run.app/VesselTracking/GetAll
+[2026-05-11 13:47:49,285] INFO tracking_app.views allmaps_view: API response status_code=200
+[2026-05-11 13:47:49,292] INFO tracking_app.views allmaps_view: API records loaded count=1202
+[2026-05-11 13:47:49,292] INFO tracking_app.views allmaps_view: stored records in session count=1202
+[2026-05-11 13:47:49,292] INFO tracking_app.views allmaps_view: creating base map
+[2026-05-11 13:47:49,294] INFO tracking_app.views allmaps_view: adding tile layers
+[2026-05-11 13:47:49,322] INFO tracking_app.views allmaps_view: grouping vessel records into routes
+[2026-05-11 13:47:49,341] INFO tracking_app.views allmaps_view: route grouping complete route_count=11
+[2026-05-11 13:47:49,342] INFO tracking_app.views allmaps_view: preparing vessel JavaScript data
+[2026-05-11 13:47:49,343] INFO tracking_app.views allmaps_view: building map JavaScript
+[2026-05-11 13:47:49,549] INFO tracking_app.views allmaps_view: rendering template
+[2026-05-11 13:47:49,762] INFO django.server "GET / HTTP/1.1" 200 653528
+[2026-05-11 13:49:05,753] INFO django.utils.autoreload D:\Projects\ShipProject\ShipProject\projects\vitmaps\tracking_app\views.py changed, reloading.
+[2026-05-11 13:49:11,098] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-05-11 13:49:38,128] INFO tracking_app.views login_view: request method=POST
+[2026-05-11 13:49:38,129] INFO tracking_app.views login_view: authenticating username=Admin
+[2026-05-11 13:49:40,920] INFO tracking_app.views login_view: authentication success username=Admin
+[2026-05-11 13:49:41,589] INFO django.server "POST /login/ HTTP/1.1" 200 52
+[2026-05-11 13:49:43,869] INFO tracking_app.views user_map_auth_view: request started user_authenticated=True
+[2026-05-11 13:49:51,481] INFO tracking_app.views Rendering template
+[2026-05-11 13:49:51,673] INFO django.server "GET /user_map_auth/ HTTP/1.1" 200 250083
+[2026-05-11 13:50:21,348] INFO tracking_app.views logout_view: logging out user_id=3
+[2026-05-11 13:50:21,716] INFO tracking_app.views logout_view: redirecting to allmaps
+[2026-05-11 13:50:21,719] INFO django.server "GET /logout/ HTTP/1.1" 302 0
+[2026-05-11 13:50:21,735] INFO tracking_app.views allmaps_view: request started
+[2026-05-11 13:50:21,735] INFO tracking_app.views allmaps_view: loaded 0 records from session
+[2026-05-11 13:50:21,735] INFO tracking_app.views allmaps_view: fetching vessel data from API url=https://shiptrackingapi-787201059405.asia-south2.run.app/VesselTracking/GetAll
+[2026-05-11 13:50:22,815] INFO tracking_app.views allmaps_view: API response status_code=200
+[2026-05-11 13:50:22,832] INFO tracking_app.views allmaps_view: API records loaded count=1202
+[2026-05-11 13:50:22,836] INFO tracking_app.views allmaps_view: stored records in session count=1202
+[2026-05-11 13:50:22,840] INFO tracking_app.views allmaps_view: creating base map
+[2026-05-11 13:50:22,850] INFO tracking_app.views allmaps_view: adding tile layers
+[2026-05-11 13:50:22,882] INFO tracking_app.views allmaps_view: grouping vessel records into routes
+[2026-05-11 13:50:22,888] INFO tracking_app.views allmaps_view: route grouping complete route_count=11
+[2026-05-11 13:50:22,888] INFO tracking_app.views allmaps_view: preparing vessel JavaScript data
+[2026-05-11 13:50:22,890] INFO tracking_app.views allmaps_view: building map JavaScript
+[2026-05-11 13:50:23,131] INFO tracking_app.views allmaps_view: rendering template
+[2026-05-11 13:50:23,534] INFO django.server "GET / HTTP/1.1" 200 653528

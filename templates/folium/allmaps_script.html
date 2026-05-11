@@ -1,0 +1,124 @@
+    <script>
+    window.onload = function() {
+        var map = {{ map_name }};
+        var vessels = {{ vessels_json|safe }};
+        var markers = [];
+
+        L.control.zoom({ position: 'bottomleft' }).addTo(map);
+
+        function getPopupHTML(pt, vName) {
+            let dt = pt.DateTime.includes('T') ? pt.DateTime.replace('T', ' ').split('.')[0] : pt.DateTime;
+            return `
+            <div style="width:180px; font-family:Arial, sans-serif; font-size:11px; color:#333;">
+                <div style="font-weight:bold; border-bottom:1px solid #ccc; padding-bottom:4px; margin-bottom:6px; color:#2f4f8f; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                    ${vName}
+                </div>
+                <div style="margin-bottom:5px; font-size:10px; color:#c53030; font-weight:bold;">🕒 ${dt}</div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:3px;">
+                    <span>Lat: <b>${pt.lat}</b></span>
+                    <span>Lng: <b>${pt.lng}</b></span>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:3px;">
+                    <span>Speed: <b>${pt.Speed}</b></span>
+                    <span>Bat: <b>${pt.Battery}V</b></span>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:3px;">
+                    <span>Fuel1: <b>${pt.Fuel1}L</b></span>
+                    <span>Fuel2: <b>${pt.Fuel2}L</b></span>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:3px;">
+                    <span>RPM1: <b>${pt.RPM1}</b></span>
+                    <span>RPM2: <b>${pt.RPM2}</b></span>
+                </div>
+                <div style="font-size:10px; margin-top:5px; border-top:1px dotted #ccc; padding-top:4px;">
+                    E1: <span style="color:${pt.Eng1RunStatus==='Running'?'green':'red'}">${pt.Eng1RunStatus}</span> |
+                    E2: <span style="color:${pt.Eng2RunStatus==='Running'?'green':'red'}">${pt.Eng2RunStatus}</span>
+                </div>
+            </div>`;
+        }
+
+        function createIcon(color) {
+            return L.divIcon({
+                className: "",
+                html: `
+                <div style="
+                    position:relative;
+                    width:30px;
+                    height:18px;
+                    transform:rotate(-90deg);
+                    filter:drop-shadow(0 4px 6px rgba(0,0,0,0.45));
+                ">
+                    <div style="
+                        position:absolute;
+                        inset:2px 1px 2px 0;
+                        background:linear-gradient(135deg, rgba(255,255,255,0.28), ${color} 38%, rgba(0,0,0,0.2));
+                        border:2px solid #ffffff;
+                        border-radius:18px 5px 5px 18px;
+                        box-shadow:inset 0 1px 2px rgba(255,255,255,0.45), inset -3px 0 3px rgba(0,0,0,0.18);
+                    "></div>
+                    <div style="
+                        position:absolute;
+                        right:-1px;
+                        top:5px;
+                        width:0;
+                        height:0;
+                        border-top:4px solid transparent;
+                        border-bottom:4px solid transparent;
+                        border-left:8px solid #ffffff;
+                    "></div>
+                    <div style="
+                        position:absolute;
+                        left:8px;
+                        top:5px;
+                        width:8px;
+                        height:6px;
+                        background:rgba(255,255,255,0.9);
+                        border-radius:3px;
+                        box-shadow:8px 0 0 rgba(255,255,255,0.55);
+                    "></div>
+                </div>`,
+                iconSize: [34, 22],
+                iconAnchor: [17, 11]
+            });
+        }
+
+        vessels.forEach(v => {
+            if (v.route.length === 0) return;
+            
+            // USE CURRENT INDEX (Live position)
+            let current = v.route[v.currentIndex || 0];
+            let marker = L.marker([current.lat, current.lng], { icon: createIcon(v.color) }).addTo(map);
+
+            marker.bindPopup(getPopupHTML(current, v.name), {
+                maxWidth: 190,
+                minWidth: 180,
+                autoPan: true
+            });
+
+            markers.push({ marker: marker, data: v });
+        });
+
+        var moveInterval = 1000;
+        var moveTimer = null;
+
+        window.setMapSpeed = function(ms) {
+            moveInterval = parseInt(ms);
+            if (moveTimer) clearInterval(moveTimer);
+
+            moveTimer = setInterval(function() {
+                markers.forEach(obj => {
+                    let v = obj.data;
+                    v.currentIndex = (v.currentIndex + 1) % v.route.length;
+                    let next = v.route[v.currentIndex];
+                    obj.marker.setLatLng([next.lat, next.lng]);
+
+                    if (obj.marker.getPopup()) {
+                        obj.marker.getPopup().setContent(getPopupHTML(next, v.name));
+                    }
+                });
+            }, moveInterval);
+        };
+
+        window.setMapSpeed(1000);
+    };
+    </script>
