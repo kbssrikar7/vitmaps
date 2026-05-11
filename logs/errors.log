@@ -1118,3 +1118,33 @@ django.template.exceptions.TemplateDoesNotExist: login.html
 [2026-05-08 19:14:16,521] WARNING tracking_app.views user_map_auth_view: showing map error message=Associated Vessels Error: 401
 [2026-05-08 19:32:47,049] WARNING tracking_app.views user_map_auth_view: Associated Vessels Error: 401
 [2026-05-08 19:32:47,126] WARNING tracking_app.views user_map_auth_view: showing map error message=Associated Vessels Error: 401
+[2026-05-11 10:20:13,880] WARNING tracking_app.views user_map_auth_view: unauthenticated request redirected to login
+[2026-05-11 10:20:14,830] ERROR django.request Internal Server Error: /login/
+Traceback (most recent call last):
+  File "C:\Python314\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Python314\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Projects\ShipProject\ShipProject\projects\vitmaps\tracking_app\views.py", line 320, in login_view
+    return render(request, 'login.html')
+  File "C:\Python314\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Python314\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: login.html
+[2026-05-11 10:20:14,841] ERROR django.server "GET /login/ HTTP/1.1" 500 89112
+[2026-05-11 10:34:02,178] ERROR django.request Internal Server Error: /
+Traceback (most recent call last):
+  File "C:\Python314\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Python314\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\Projects\ShipProject\ShipProject\projects\vitmaps\tracking_app\views.py", line 194, in allmaps_view
+    <div style="margin-bottom:5px; font-size:10px; color:#c53030; font-weight:bold;">🕒 ${dt}</div>
+                                                                                          ^^
+NameError: name 'dt' is not defined
+[2026-05-11 10:34:02,374] ERROR django.server "GET / HTTP/1.1" 500 104637
+[2026-05-11 10:34:03,931] WARNING django.request Not Found: /favicon.ico
+[2026-05-11 10:34:03,939] WARNING django.server "GET /favicon.ico HTTP/1.1" 404 4285
