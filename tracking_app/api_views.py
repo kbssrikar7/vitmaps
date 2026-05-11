@@ -1,6 +1,7 @@
 # api_views.py
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from django.core.exceptions import ObjectDoesNotExist
 from .models import DeviceLocation
 from .serializers import DeviceLocationSerializer
 
@@ -18,5 +19,5 @@ def latest_location(request, device_id):
         data = DeviceLocation.objects.filter(device_id=device_id).latest('timestamp')
         serializer = DeviceLocationSerializer(data)
         return Response(serializer.data)
-    except:
+    except ObjectDoesNotExist:
         return Response({"error": "No data"})
