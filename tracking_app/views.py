@@ -669,12 +669,12 @@ def user_map_auth_view(request):
                     <span>Bat: <b>${{pt.Battery}}V</b></span>
                 </div>
                 <div style="display:flex; justify-content:space-between; margin-bottom:3px;">
-                    <span>F1: <b>${{pt.Fuel1}}L</b></span>
-                    <span>F2: <b>${{pt.Fuel2}}L</b></span>
+                    <span>Fuel1: <b>${{pt.Fuel1}}L</b></span>
+                    <span>Fuel2: <b>${{pt.Fuel2}}L</b></span>
                 </div>
                 <div style="display:flex; justify-content:space-between; margin-bottom:3px;">
-                    <span>R1: <b>${{pt.RPM1}}</b></span>
-                    <span>R2: <b>${{pt.RPM2}}</b></span>
+                    <span>RPM1: <b>${{pt.RPM1}}</b></span>
+                    <span>RPM2: <b>${{pt.RPM2}}</b></span>
                 </div>
                 <div style="font-size:10px; margin-top:5px; border-top:1px dotted #ccc; padding-top:4px;">
                     E1: <span style="color:${{pt.Eng1RunStatus==='Running'?'green':'red'}}">${{pt.Eng1RunStatus}}</span> |
