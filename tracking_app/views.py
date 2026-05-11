@@ -371,9 +371,9 @@ def user_map_auth_view(request):
         logger.warning("user_map_auth_view: unauthenticated request redirected to login")
         return redirect('login')
 
-    user_ID = 1
+    user_ID =4 
 
-    b_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjYsInVzZXJuYW1lIjoiQWRtaW4iLCJpYXQiOjE3Nzg0NzUzNDgsImV4cCI6MTc3ODQ3NzE0OH0.PM_pYqfiz3UUyq_1L7M_KD8WQ0NyhBdR5hx5wH_hFfw"
+    b_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjYsInVzZXJuYW1lIjoiQWRtaW4iLCJpYXQiOjE3Nzg0Nzc2OTksImV4cCI6MTc3ODQ3OTQ5OX0.rvsL1474hrN8UzTsXra1ZY9UwEGC1cYGV4UYCO19DHc"
 
     vessels_raw = request.session.get("auth_vessels_data", [])
     last_fetch = request.session.get("auth_vessels_last_fetch", 0)
@@ -741,91 +741,154 @@ def user_map_auth_view(request):
         }}
 
         // ======================================================
-        // CONTROL PANEL
+        // TOGGLEABLE CONTROL PANEL
         // ======================================================
-        var controlPanel = L.control({{position:'topright'}});
+        var controlPanel = L.control({{position:'bottomleft'}});
 
         controlPanel.onAdd = function() {{
 
-            var div = L.DomUtil.create('div');
+            var container = L.DomUtil.create('div', 'control-panel-container');
 
-            div.innerHTML = `
-            <div style="
-                background:white;
-                padding:12px;
-                width:240px;
-                border-radius:10px;
-                box-shadow:0 0 15px rgba(0,0,0,0.3);
-                font-family:Arial;
-            ">
-
-                <div style="
-                    font-size:16px;
-                    font-weight:bold;
-                    margin-bottom:10px;
-                ">
-                    Vessel Controls
+            // 1. THE TOGGLE BUTTON (Movable effect via absolute positioning in control corner)
+            var toggleBtn = L.DomUtil.create('div', '', container);
+            toggleBtn.innerHTML = `
+                <div id="panelToggleBtn" style="
+                    background: #1565c0;
+                    color: white;
+                    width: 45px;
+                    height: 45px;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    cursor: pointer;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                    font-size: 20px;
+                    transition: transform 0.2s;
+                " title="Toggle Controls">
+                    ⚙️
                 </div>
-
-                <button onclick="startReplay()" style="
-                    width:100%;
-                    margin-bottom:8px;
-                    padding:8px;
-                    border:none;
-                    background:#1565c0;
-                    color:white;
-                    border-radius:6px;
-                    cursor:pointer;
-                ">
-                    ▶ Replay
-                </button>
-
-                <button onclick="pauseReplay()" style="
-                    width:100%;
-                    margin-bottom:8px;
-                    padding:8px;
-                    border:none;
-                    background:#d32f2f;
-                    color:white;
-                    border-radius:6px;
-                    cursor:pointer;
-                ">
-                    ⏸ Pause
-                </button>
-
-                <button onclick="resetReplay()" style="
-                    width:100%;
-                    margin-bottom:10px;
-                    padding:8px;
-                    border:none;
-                    background:#2e7d32;
-                    color:white;
-                    border-radius:6px;
-                    cursor:pointer;
-                ">
-                    ⟳ Reset
-                </button>
-
-                <label>Speed</label>
-
-                <select onchange="changeSpeed(this.value)"
-                    style="width:100%;padding:6px;margin-top:5px;">
-
-                    <option value="2000">Slow</option>
-                    <option value="1000" selected>Normal</option>
-                    <option value="400">Fast</option>
-                    <option value="150">Very Fast</option>
-
-                </select>
-
-                <hr>
-
-                <div id="vesselList"></div>
-
-            </div>
             `;
 
-            return div;
+            // 2. THE ACTUAL PANEL (Hidden by default)
+            var div = L.DomUtil.create('div', '', container);
+            div.id = "vesselControlPanel";
+            div.style.display = "none"; // Auto hide
+            div.style.background = "white";
+            div.style.padding = "15px";
+            div.style.width = "240px";
+            div.style.borderRadius = "12px";
+            div.style.boxShadow = "0 8px 24px rgba(0,0,0,0.2)";
+            div.style.fontFamily = "Arial, sans-serif";
+            div.style.marginTop = "10px";
+
+            div.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                    <span style="font-size:16px; font-weight:bold;">Vessel Controls</span>
+                    <span id="closePanelBtn" style="cursor:pointer; font-size:18px;">&times;</span>
+                </div>
+
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:10px;">
+                    <button onclick="startReplay()" style="padding:8px; border:none; background:#1565c0; color:white; border-radius:6px; cursor:pointer;">▶ Play</button>
+                    <button onclick="pauseReplay()" style="padding:8px; border:none; background:#d32f2f; color:white; border-radius:6px; cursor:pointer;">⏸ Pause</button>
+                </div>
+
+                <button onclick="resetReplay()" style="width:100%; margin-bottom:12px; padding:8px; border:none; background:#2e7d32; color:white; border-radius:6px; cursor:pointer;">⟳ Reset Replay</button>
+
+                <label style="font-size:12px; color:#666;">Animation Speed</label>
+                <select onchange="changeSpeed(this.value)" style="width:100%; padding:8px; margin-top:5px; border-radius:4px; border:1px solid #ccc;">
+                    <option value="2000">🐌 Slow</option>
+                    <option value="1000" selected>Normal</option>
+                    <option value="400">⚡ Fast</option>
+                    <option value="150">🚀 Very Fast</option>
+                </select>
+
+                <hr style="margin:15px 0; border:0; border-top:1px solid #eee;">
+                <div style="font-size:13px; font-weight:bold; margin-bottom:8px;">Vessels</div>
+                <div id="vesselList" style="max-height:150px; overflow-y:auto;"></div>
+            `;
+
+            // DRAGGABLE & TOGGLE LOGIC
+            L.DomEvent.disableClickPropagation(container);
+
+            var isDragging = false;
+            var startX, startY;
+            var currentX = 0, currentY = 0;
+            var initialX, initialY;
+            var xOffset = 0, yOffset = 0;
+
+            function dragStart(e) {{
+                if (e.type === "touchstart") {{
+                    initialX = e.touches[0].clientX - xOffset;
+                    initialY = e.touches[0].clientY - yOffset;
+                }} else {{
+                    initialX = e.clientX - xOffset;
+                    initialY = e.clientY - yOffset;
+                }}
+                
+                if (e.target === toggleBtn || toggleBtn.contains(e.target)) {{
+                    isDragging = true;
+                    startX = (e.type === "touchstart") ? e.touches[0].clientX : e.clientX;
+                    startY = (e.type === "touchstart") ? e.touches[0].clientY : e.clientY;
+                }}
+            }}
+
+            function dragEnd(e) {{
+                initialX = currentX;
+                initialY = currentY;
+                isDragging = false;
+
+                // If it was a click (not a drag), toggle the panel
+                var endX = (e.type === "touchend") ? e.changedTouches[0].clientX : e.clientX;
+                var endY = (e.type === "touchend") ? e.changedTouches[0].clientY : e.clientY;
+                
+                if (Math.abs(endX - startX) < 5 && Math.abs(endY - startY) < 5) {{
+                    var panel = document.getElementById('vesselControlPanel');
+                    panel.style.display = (panel.style.display === "none") ? "block" : "none";
+                }}
+            }}
+
+            function drag(e) {{
+                if (isDragging) {{
+                    e.preventDefault();
+                    if (e.type === "touchmove") {{
+                        currentX = e.touches[0].clientX - initialX;
+                        currentY = e.touches[0].clientY - initialY;
+                    }} else {{
+                        currentX = e.clientX - initialX;
+                        currentY = e.clientY - initialY;
+                    }}
+
+                    xOffset = currentX;
+                    yOffset = currentY;
+
+                    setTranslate(currentX, currentY, container);
+                }}
+            }}
+
+            function setTranslate(xPos, yPos, el) {{
+                el.style.transform = "translate3d(" + xPos + "px, " + yPos + "px, 0)";
+            }}
+
+            toggleBtn.addEventListener("touchstart", dragStart, false);
+            document.addEventListener("touchend", dragEnd, false);
+            document.addEventListener("touchmove", drag, false);
+
+            toggleBtn.addEventListener("mousedown", dragStart, false);
+            document.addEventListener("mouseup", dragEnd, false);
+            document.addEventListener("mousemove", drag, false);
+
+            // Close button logic
+            setTimeout(() => {{
+                var closeBtn = document.getElementById('closePanelBtn');
+                if(closeBtn) {{
+                    L.DomEvent.on(closeBtn, 'click', function() {{
+                        document.getElementById('vesselControlPanel').style.display = "none";
+                    }});
+                }}
+            }}, 100);
+
+            return container;
         }};
 
         controlPanel.addTo(map);
