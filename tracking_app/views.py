@@ -14,6 +14,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
+from django.contrib.auth.models import User
 
 
 logger = logging.getLogger(__name__)
@@ -193,20 +194,62 @@ def allmaps_view(request):
 def login_view(request):
     logger.info("login_view: request method=%s", request.method)
     if request.method == "POST":
-        username = request.POST.get('username')
-        password = request.POST.get('password')
+        username = request.POST.get("username")
+        password = request.POST.get("password")
         logger.info("login_view: authenticating username=%s", username)
-        user = authenticate(request, username=username, password=password)
+        # EXTERNAL API LOGIN
+        auth_url = "https://shiptrackingapiauth-787201059405.asia-south2.run.app/login"
 
-        if user:
-            logger.info("login_view: authentication success username=%s", username)
-            login(request, user)
-            return JsonResponse({"success": True, "redirect_url": reverse("user_map_auth")})
-        else:
-            logger.warning("login_view: authentication failed username=%s", username)
-            return JsonResponse({"success": False, "error": "Invalid credentials"})
+        payload = {
+            "username": username,
+            "password": password
+        }
+        try:
+            response = requests.post(
+                auth_url,
+                json=payload,
+                timeout=10
+            )
+             # API SUCCESS
+            if response.status_code == 200:
+                data = response.json()
+
+                # API TOKEN
+                token = data.get("token")
+                userId = data.get("userId")
+               # DJANGO USER LOGIN
+
+                user, created = User.objects.get_or_create(
+                    username=username
+                )
+                # backend required for manual login
+                user.backend = "django.contrib.auth.backends.ModelBackend"
+                logger.info("login_view: authentication success username=%s", username)
+                login(request, user)
+                # STORE TOKEN IN SESSION
+                request.session["bearer_token"] = token
+                request.session["api_user_id"] = userId
+
+                return JsonResponse({
+                    "success": True,
+                    "redirect_url": reverse("user_map_auth")
+                })
+
+            else:
+                logger.warning("login_view: authentication failed username=%s", username)
+                return JsonResponse({
+                    "success": False,
+                    "error": "Invalid API credentials"
+                })
+
+        except Exception as e:
+            logger.error("login_view: API connection failed username=%s error=%s", username, e)
+            return JsonResponse({
+                "success": False,
+                "error": "API connection failed"
+            })
     logger.info("login_view: rendering login template")
-    return render(request, 'login.html')
+    return render(request, "login.html")
 
 
 def logout_view(request):
@@ -255,10 +298,9 @@ def user_map_auth_view(request):
     if not request.user.is_authenticated:
         logger.warning("user_map_auth_view: unauthenticated request redirected to login")
         return redirect('login')
-
-    user_ID = 4 
-
-    b_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjYsInVzZXJuYW1lIjoiQWRtaW4iLCJpYXQiOjE3Nzg0ODc1MjcsImV4cCI6MTc3ODQ4OTMyN30.J2usVU-tUmhKXp_1H8HyJLfBIgO40WTIuo0zLjQzbO4"
+    
+    user_ID = request.session.get("api_user_id")
+    b_token = request.session.get("bearer_token")
 
     vessels_raw = request.session.get("auth_vessels_data", [])
     last_fetch = request.session.get("auth_vessels_last_fetch", 0)
