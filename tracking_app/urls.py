@@ -6,6 +6,7 @@ urlpatterns = [
     path('', views.allmaps_view, name='allmaps'),
     path('.well-known/appspecific/com.chrome.devtools.json', views.chrome_devtools_config),
     path('user_map_auth/', views.user_map_auth_view, name='user_map_auth'),
+    path('user_map_auth/vessel_data_json/', views.vessel_data_json, name='vessel_data_json'),
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
     path('register/', views.register_view, name='register'),

@@ -9,10 +9,11 @@ import time
 from django.conf import settings
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
-from django.contrib.auth import authenticate, login, logout
+# from django.contrib.auth import authenticate, login, logout # Not used, User.objects and login/logout are used directly
+from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
-from django.views.decorators.csrf import csrf_exempt
+# from django.views.decorators.csrf import csrf_exempt # Not used
 from django.http import JsonResponse
 from django.contrib.auth.models import User
 
@@ -143,9 +144,11 @@ def allmaps_view(request):
         v_name = v.get(
             "VesselName") or f"Ship {v.get('VesselId') or v.get('Id') or 'Unknown'}"
 
+        lat = float(v.get("Longitude") or v.get("lat") or 17.15)
+        lng = float(v.get("Latitude") or v.get("lng") or 82.4)
         point = {
-            "lat": float(v.get("Longitude") or v.get("lat") or 16.93),
-            "lng": float(v.get("Latitude") or v.get("lng") or 82.26),
+            "lat": lat,
+            "lng": lng,
             "Comments": v.get("Comments", "-"),
             "DateTime": v.get("DateTime", "-"),
             "Speed": v.get("Speed", "-"),
@@ -292,6 +295,113 @@ def register_view(request):
     return render(request, 'register.html', {'form': form})
 
 
+def get_auth_vessels_data(request, force_refresh=False):
+    """
+    Helper function to fetch vessel data from the API and store it in the session.
+    """
+    user_ID = request.session.get("api_user_id")
+    b_token = request.session.get("bearer_token")
+
+    vessels_raw = request.session.get("auth_vessels_data", [])
+    last_fetch = request.session.get("auth_vessels_last_fetch", 0)
+
+    error_message = None
+
+    # Fetch if force_refresh is True or if data is stale (more than 30 seconds old)
+    if force_refresh or not vessels_raw or (time.time() - last_fetch > 30):
+        bearer_token = getattr(settings, "SHIP_API_BEARER_TOKEN", b_token)
+        logger.info("Fetching vessel data from API for user_id=%s", user_ID)
+        headers = {
+            "Authorization": f"Bearer {bearer_token}",
+            "Accept": "application/json"
+        }
+
+        vessels_raw = []
+        try:
+            assoc_url = f"https://shiptrackingapiauth-787201059405.asia-south2.run.app/VesselTracking/UserAssociatedVessels/{user_ID}"
+            assoc_res = requests.get(assoc_url, headers=headers, timeout=10)
+
+            if assoc_res.status_code == 200:
+                assoc_data = assoc_res.json()
+                v_ids = []
+                if isinstance(assoc_data, list):
+                    v_ids = [str(v.get('VesselId')) for v in assoc_data if v.get('VesselId')]
+                elif isinstance(assoc_data, dict):
+                    if assoc_data.get('VesselId'):
+                        v_ids = [str(assoc_data.get('VesselId'))]
+
+                for vessel_id in v_ids:
+                    latest_url = f"https://shiptrackingapiauth-787201059405.asia-south2.run.app/VesselTracking/getbyVesselId/{vessel_id}"
+                    latest_res = requests.get(latest_url, headers=headers, timeout=10)
+                    if latest_res.status_code == 200:
+                        latest_data = latest_res.json()
+                        if isinstance(latest_data, list):
+                            vessels_raw.extend(latest_data)
+                        elif isinstance(latest_data, dict):
+                            vessels_raw.append(latest_data)
+                
+                request.session["auth_vessels_data"] = vessels_raw
+                request.session["auth_vessels_last_fetch"] = time.time()
+            else:
+                error_message = f"Associated Vessel API Error: {assoc_res.status_code}"
+        except Exception as e:
+            logger.exception("API fetch failed")
+            error_message = str(e)
+    
+    return vessels_raw, error_message
+
+
+def process_auth_vessels_to_js(vessels_raw):
+    """
+    Helper function to process raw vessel data into the format expected by the JS map.
+    """
+    routes = {}
+    for v in vessels_raw:
+        vessel_name = v.get("VesselName") or f"Ship {v.get('VesselId')}"
+        vessel_key = v.get("VesselId") or v.get("Id") or vessel_name
+
+        # Ensure correct Latitude and Longitude mapping
+        
+        lat = float(v.get("Longitude") or v.get("lat") or 17.15)
+        lng = float(v.get("Latitude") or v.get("lng") or 82.4)
+
+        point = {
+            "lat": lat,
+            "lng": lng,
+            "Comments": v.get("Comments", "-"),
+            "DateTime": v.get("DateTime", "-"),
+            "Speed": v.get("Speed", "-"),
+            "IdleTime": v.get("IdleTime", "-"),
+            "Battery": v.get("Battery", "-"),
+            "Fuel1": v.get("Fuel1", "-"),
+            "Fuel2": v.get("Fuel2", "-"),
+            "RPM1": v.get("RPM1", "-"),
+            "RPM2": v.get("RPM2", "-"),
+            "Eng1RunStatus": "Running" if v.get("Eng1RunStatus") in [1, "1", "Running"] else "Idle",
+            "Eng2RunStatus": "Running" if v.get("Eng2RunStatus") in [1, "1", "Running"] else "Idle"
+        }
+
+        if vessel_key not in routes:
+            routes[vessel_key] = {"name": vessel_name, "path": []}
+        routes[vessel_key]["path"].append(point)
+
+    for r in routes.values():
+        r["path"].sort(key=lambda x: x.get("DateTime", ""))
+    
+    dark_colors = ["#1a237e", "#b71c1c", "#1b5e20", "#e65100", "#4a148c", "#004d40", "#212121", "#3e2723"]
+    vessel_js_array = []
+    for i, route in enumerate(routes.values()):
+        path_len = len(route["path"])
+        vessel_js_array.append({
+            "name": route["name"],
+            "color": dark_colors[i % len(dark_colors)],
+            "route": route["path"],
+            "currentIndex": path_len - 1 if path_len > 0 else 0,
+            "visible": True
+        })
+    return vessel_js_array
+
+
 def user_map_auth_view(request):
     logger.info("user_map_auth_view: request started user_authenticated=%s", request.user.is_authenticated)
 
@@ -299,95 +409,9 @@ def user_map_auth_view(request):
         logger.warning("user_map_auth_view: unauthenticated request redirected to login")
         return redirect('login')
     
-    user_ID = request.session.get("api_user_id")
-    b_token = request.session.get("bearer_token")
-
-    vessels_raw = request.session.get("auth_vessels_data", [])
-    last_fetch = request.session.get("auth_vessels_last_fetch", 0)
     force_refresh = request.GET.get('refresh') == 'true'
-
-    error_message = None
-
-    # ==========================================================
-    # FETCH API DATA
-    # ==========================================================
-    if force_refresh or not vessels_raw or (time.time() - last_fetch > 300):
-
-        bearer_token = getattr(settings, "SHIP_API_BEARER_TOKEN", b_token)
-
-        headers = {
-            "Authorization": f"Bearer {bearer_token}",
-            "Accept": "application/json"
-        }
-
-        vessels_raw = []
-
-        try:
-
-            assoc_url = f"https://shiptrackingapiauth-787201059405.asia-south2.run.app/VesselTracking/UserAssociatedVessels/{user_ID}"
-
-            assoc_res = requests.get(
-                assoc_url,
-                headers=headers,
-                timeout=10
-            )
-
-            if assoc_res.status_code == 200:
-
-                assoc_data = assoc_res.json()
-
-                v_ids = []
-
-                if isinstance(assoc_data, list):
-
-                    v_ids = [
-                        str(v.get('VesselId'))
-                        for v in assoc_data
-                        if v.get('VesselId')
-                    ]
-
-                elif isinstance(assoc_data, dict):
-
-                    if assoc_data.get('VesselId'):
-                        v_ids = [str(assoc_data.get('VesselId'))]
-
-                # ==================================================
-                # GET EACH VESSEL TRACKING HISTORY
-                # ==================================================
-                for vessel_id in v_ids:
-
-                    latest_url = f"https://shiptrackingapiauth-787201059405.asia-south2.run.app/VesselTracking/getbyVesselId/{vessel_id}"
-
-                    latest_res = requests.get(
-                        latest_url,
-                        headers=headers,
-                        timeout=10
-                    )
-
-                    if latest_res.status_code == 200:
-
-                        latest_data = latest_res.json()
-
-                        if isinstance(latest_data, list):
-                            vessels_raw.extend(latest_data)
-
-                        elif isinstance(latest_data, dict):
-                            vessels_raw.append(latest_data)
-
-                    else:
-                        logger.warning("Failed vessel_id=%s", vessel_id)
-
-                request.session["auth_vessels_data"] = vessels_raw
-                request.session["auth_vessels_last_fetch"] = time.time()
-
-            else:
-                error_message = f"Associated Vessel API Error: {assoc_res.status_code}"
-
-        except Exception as e:
-
-            logger.exception("API FAILED")
-
-            error_message = str(e)
+    vessels_raw, error_message = get_auth_vessels_data(request, force_refresh)
+    vessel_js_array = process_auth_vessels_to_js(vessels_raw)
 
     # ==========================================================
     # MAP
@@ -440,102 +464,9 @@ def user_map_auth_view(request):
 
     folium.LayerControl(position="bottomright").add_to(m)
 
-    # ==========================================================
-    # ERROR MESSAGE
-    # ==========================================================
     if error_message:
-
-        err_html = render_to_string(
-            "folium/error_banner.html",
-            {"error_message": error_message},
-        )
-
+        err_html = render_to_string("folium/error_banner.html", {"error_message": error_message})
         m.get_root().html.add_child(folium.Element(err_html))
-
-    # ==========================================================
-    # GROUP ROUTES
-    # ==========================================================
-    routes = {}
-
-    for v in vessels_raw:
-
-        vessel_name = (
-            v.get("VesselName")
-            or f"Ship {v.get('VesselId')}"
-        )
-
-        vessel_key = (
-            v.get("VesselId")
-            or v.get("Id")
-            or vessel_name
-        )
-
-        # IMPORTANT ----------------------------------------------
-        # YOUR API LAT/LNG WERE REVERSED
-        # FIXED HERE
-
-        lat = float(v.get("Longitude") or v.get("lat") or 17.15)
-        lng = float(v.get("Latitude") or v.get("lng") or 82.4)
-
-        point = {
-            "lat": lat,
-            "lng": lng,
-            "Comments": v.get("Comments", "-"),
-            "DateTime": v.get("DateTime", "-"),
-            "Speed": v.get("Speed", "-"),
-            "IdleTime": v.get("IdleTime", "-"),
-            "Battery": v.get("Battery", "-"),
-            "Fuel1": v.get("Fuel1", "-"),
-            "Fuel2": v.get("Fuel2", "-"),
-            "RPM1": v.get("RPM1", "-"),
-            "RPM2": v.get("RPM2", "-"),
-            "Eng1RunStatus": "Running" if v.get("Eng1RunStatus") in [1, "1", "Running"] else "Idle",
-            "Eng2RunStatus": "Running" if v.get("Eng2RunStatus") in [1, "1", "Running"] else "Idle"
-        }
-
-        if vessel_key not in routes:
-
-            routes[vessel_key] = {
-                "name": vessel_name,
-                "path": []
-            }
-
-        routes[vessel_key]["path"].append(point)
-
-    # SORT BY DATETIME
-    for r in routes.values():
-
-        r["path"].sort(
-            key=lambda x: x.get("DateTime", "")
-        )
-
-    # ==========================================================
-    # JS DATA
-    # ==========================================================
-    dark_colors = [
-        "#1a237e",
-        "#b71c1c",
-        "#1b5e20",
-        "#e65100",
-        "#4a148c",
-        "#004d40",
-        "#212121",
-        "#3e2723"
-    ]
-
-    vessel_js_array = []
-
-    for i, route in enumerate(routes.values()):
-
-        path_len = len(route["path"])
-
-        vessel_js_array.append({
-            "name": route["name"],
-            "color": dark_colors[i % len(dark_colors)],
-            "route": route["path"],
-            "currentIndex": path_len - 1 if path_len > 0 else 0,
-            "visible": True
-        })
 
     # ==========================================================
     # FULL LIVE + REPLAY JS
@@ -548,10 +479,7 @@ def user_map_auth_view(request):
         },
     )
 
-    m.get_root().html.add_child(
-        folium.Element(js_code)
-    )
-
+    m.get_root().html.add_child(folium.Element(js_code))
     logger.info("Rendering template")
 
     return render(
@@ -561,3 +489,15 @@ def user_map_auth_view(request):
             'map_auth_html': m._repr_html_()
         }
     )
+
+
+@login_required
+def vessel_data_json(request):
+    """
+    Endpoint that returns fresh vessel data in JSON format for live updates.
+    """
+    logger.info("===============================>1")
+    vessels_raw, error_message = get_auth_vessels_data(request, force_refresh=True)
+    vessel_js_array = process_auth_vessels_to_js(vessels_raw)
+    return JsonResponse({"vessels": vessel_js_array, "error": error_message})
+
