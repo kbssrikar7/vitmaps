@@ -117,7 +117,7 @@
         // ======================================================
         // TOGGLEABLE CONTROL PANEL
         // ======================================================
-        var controlPanel = L.control({position:'bottomleft'});
+        var controlPanel = L.control({position:'bottomright'});
 
         controlPanel.onAdd = function() {
 
@@ -479,6 +479,48 @@
             }
 
         }
+
+        // ======================================================
+        // LIVE UPDATES
+        // ======================================================
+        function updateVessels(vessels) {
+            vessels.forEach((v) => {
+                if (!v.route || v.route.length === 0) return;
+
+                let current = v.route[v.currentIndex];
+                let obj = vesselObjects.find(o => o.data.name === v.name);
+
+                if (obj) {
+                    // Preserve visibility state
+                    let oldVisible = obj.data.visible;
+                    obj.data = v;
+                    obj.data.visible = oldVisible;
+
+                    // Update marker position
+                    obj.marker.setLatLng([current.lat, current.lng]);
+                    
+                    // Update popup content if open
+                    if (obj.marker.isPopupOpen()) {
+                        obj.marker.setPopupContent(getPopupHTML(current, v.name));
+                    }
+
+                    // Update polylines with full new data
+                    obj.fullPolyline.setLatLngs(v.route.map(p => [p.lat, p.lng]));
+                    obj.replayPolyline.setLatLngs(v.route.slice(0, v.currentIndex + 1).map(p => [p.lat, p.lng]));
+                }
+            });
+        }
+
+        setInterval(() => {
+            fetch("/user_map_auth/vessel_data_json/")
+                .then(res => res.json())
+                .then(data => {
+                    if (data.vessels) {
+                        updateVessels(data.vessels);
+                    }
+                })
+                .catch(err => console.error("Live update failed:", err));
+        }, 30000);
 
         // ======================================================
         // AUTO START
