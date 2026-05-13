@@ -315,11 +315,13 @@
                 }
             ).addTo(map);
 
+            // Store vessel management object
             vesselObjects.push({
-                marker:marker,
-                fullPolyline:fullPolyline,
-                replayPolyline:replayPolyline,
-                data:v
+                vkey: v.vkey, // Unique ID for faster lookup
+                marker: marker,
+                fullPolyline: fullPolyline,
+                replayPolyline: replayPolyline,
+                data: v
             });
 
             // VESSEL TOGGLE
@@ -480,33 +482,92 @@
 
         }
 
-        // ======================================================
-        // LIVE UPDATES
-        // ======================================================
+        /**
+         * UPDATES VESSELS ON THE MAP (Live Polling every 30s)
+         * This function handles:
+         * 1. Identifying if a vessel is new or existing.
+         * 2. Creating markers/lines for new vessels dynamically.
+         * 3. Appending new tracking points to existing vessel routes.
+         * 4. Moving markers and extending polylines in real-time.
+         */
         function updateVessels(vessels) {
             vessels.forEach((v) => {
+                // Skip if no new route data provided
                 if (!v.route || v.route.length === 0) return;
 
-                let current = v.route[v.currentIndex];
-                let obj = vesselObjects.find(o => o.data.name === v.name);
+                // Step 1: Find existing vessel object by its unique key (vkey)
+                let obj = vesselObjects.find(o => o.vkey === v.vkey || o.data.name === v.name);
 
-                if (obj) {
-                    // Preserve visibility state
-                    let oldVisible = obj.data.visible;
-                    obj.data = v;
-                    obj.data.visible = oldVisible;
-
-                    // Update marker position
-                    obj.marker.setLatLng([current.lat, current.lng]);
+                if (!obj) {
+                    // --- CASE A: NEW VESSEL DETECTED ---
                     
-                    // Update popup content if open
-                    if (obj.marker.isPopupOpen()) {
-                        obj.marker.setPopupContent(getPopupHTML(current, v.name));
-                    }
+                    // Step 2: Get the first point of the new vessel's route
+                    let first = v.route[0];
+                    
+                    // Step 3: Create ship marker and add to map
+                    let marker = L.marker([first.lat, first.lng], {
+                        icon: createIcon(v.color)
+                    }).addTo(map);
 
-                    // Update polylines with full new data
-                    obj.fullPolyline.setLatLngs(v.route.map(p => [p.lat, p.lng]));
-                    obj.replayPolyline.setLatLngs(v.route.slice(0, v.currentIndex + 1).map(p => [p.lat, p.lng]));
+                    // Step 4: Bind popup with vessel info
+                    marker.bindPopup(getPopupHTML(first, v.name));
+
+                    // Step 5: Create historical path (dashed polyline)
+                    let fullPolyline = L.polyline(
+                        v.route.map(p => [p.lat, p.lng]),
+                        { color: v.color, weight: 1, opacity: 0.25, dashArray: '6,6' }
+                    ).addTo(map);
+
+                    // Step 6: Create live replay line (solid polyline)
+                    let replayPolyline = L.polyline(
+                        v.route.map(p => [p.lat, p.lng]),
+                        { color: v.color, weight: 2, opacity: 0.9 }
+                    ).addTo(map);
+
+                    // Step 7: Store management object for future updates
+                    obj = {
+                        marker: marker,
+                        fullPolyline: fullPolyline,
+                        replayPolyline: replayPolyline,
+                        data: v,
+                        vkey: v.vkey
+                    };
+                    vesselObjects.push(obj);
+
+                    // Step 8: Dynamically add vessel to the UI Control Panel list
+                    let vesselList = document.getElementById('vesselList');
+                    let newIdx = vesselObjects.length - 1;
+                    vesselList.innerHTML += `
+                        <div style="margin-bottom:6px;">
+                            <input type="checkbox" checked onchange="toggleVessel(${newIdx}, this.checked)">
+                            <span style="color:${v.color};font-weight:bold;">${v.name}</span>
+                        </div>
+                    `;
+                } else {
+                    // --- CASE B: EXISTING VESSEL UPDATE ---
+                    
+                    // Step 9: Iterate through all new points returned by the API
+                    v.route.forEach(newPt => {
+                        // Step 10: Deduplicate - check if this point already exists in our local route
+                        let exists = obj.data.route.some(oldPt => oldPt.DateTime === newPt.DateTime);
+                        if (!exists) {
+                            // Step 11: Append new point to the local data array
+                            obj.data.route.push(newPt);
+                            obj.data.currentIndex = obj.data.route.length - 1;
+                            
+                            // Step 12: MOVE SHIP MARKER to the newest position
+                            obj.marker.setLatLng([newPt.lat, newPt.lng]);
+                            
+                            // Step 13: EXTEND POLYLINES with the new coordinate
+                            obj.fullPolyline.addLatLng([newPt.lat, newPt.lng]);
+                            obj.replayPolyline.addLatLng([newPt.lat, newPt.lng]);
+
+                            // Step 14: ALWAYS update the popup content with the latest data (Speed, Battery, etc.)
+                            // This ensures that if the popup is already open, it updates live.
+                            // If it's closed, it will show the new data the next time the user clicks it.
+                            obj.marker.setPopupContent(getPopupHTML(newPt, v.name));
+                        }
+                    });
                 }
             });
         }
