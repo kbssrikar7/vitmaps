@@ -1,3 +1,5 @@
+from wsgiref import headers
+
 from django.urls import reverse
 
 import folium
@@ -6,6 +8,7 @@ import logging
 import os
 import requests
 import time
+from datetime import datetime, time as dt_time
 from django.conf import settings
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
@@ -56,7 +59,20 @@ def allmaps_view(request):
         except Exception:
             logger.exception("allmaps_view: API fetch failed")
         
-        request.session["vessels_raw"] = vessels_raw
+        # Fallback to local JSON if API fails or returns no data
+        if not vessels_raw:
+            try:
+                local_path = os.path.join(settings.BASE_DIR, 'static', 'data', 'vessels.json')
+                if os.path.exists(local_path):
+                    with open(local_path, 'r') as f:
+                        vessels_raw = json.load(f)
+            except Exception:
+                logger.exception("allmaps_view: Local fallback failed")
+
+        if vessels_raw:
+            if not isinstance(vessels_raw, list):
+                vessels_raw = [vessels_raw]
+            request.session["vessels_raw"] = vessels_raw
 
     # Step 2: Handle empty data case
     if not vessels_raw:
@@ -79,7 +95,7 @@ def allmaps_view(request):
     # Step 6: Group raw data into routes by vessel name
     routes = {}
     for v in vessels_raw:
-        v_name = v.get("VesselName") or f"Ship {v.get('VesselId') or v.get('Id') or 'Unknown'}"
+        v_name = v.get("VesselName") or v.get("name") or f"Ship {v.get('VesselId') or v.get('Id') or 'Unknown'}"
         # COORDINATE FIX: API provides reversed Lat/Lng. Longitude -> lat, Latitude -> lng.
         lat = float(v.get("Longitude") or v.get("lat") or 17.15)
         lng = float(v.get("Latitude") or v.get("lng") or 82.4)
@@ -165,62 +181,107 @@ def register_view(request):
         return JsonResponse({"success": False, "error": form.errors.as_json()})
     return render(request, 'register.html', {'form': UserCreationForm()})
 
-
-def get_auth_vessels_data(request):
-    """
-    DATA HELPER: Fetches tracking points for user-associated vessels.
-    State 1 (First Load): Fetches full history for all vessels.
-    State 2 (Polling): Fetches only latest 'top 1' record and appends to session.
-    """
+def get_vessels_data_filtering(request, start_date=None, end_date=None, target_vessel_id=None):
     user_ID = request.session.get("api_user_id")
     b_token = request.session.get("bearer_token")
-    vessels_raw = request.session.get("auth_vessels_data", [])
-    
     bearer_token = getattr(settings, "SHIP_API_BEARER_TOKEN", b_token)
     headers = {"Authorization": f"Bearer {bearer_token}", "Accept": "application/json"}
-    
+    vessels_raw = request.session.get("auth_vessels_data", []) 
+
+    try:
+        s_date = start_date.replace("T", " ") if start_date else None
+        e_date = end_date.replace("T", " ") if end_date else None
+        assoc_url = "https://shiptrackingapiauth-787201059405.asia-south2.run.app/VesselTracking/GetDataWithUserIdAndDateRange"
+        payload = {"userId": user_ID, "startDate": s_date, "endDate": e_date}
+        if target_vessel_id:
+            payload["vesselId"] = target_vessel_id
+
+        logger.info(f"===>API POST URL: {assoc_url} Payload: {payload}")
+        assoc_res = requests.post(assoc_url, headers=headers, json=payload, timeout=30)
+        vessels_raw, new_records = get_auth_vessels_data(assoc_res, request, start_date, end_date)
+        return vessels_raw, new_records
+
+    except Exception:
+        logger.exception("API fetch failed")
+        return [], []
+
+def get_auth_vessels_data_LiveData(request, start_date=None, end_date=None, target_vessel_id=None):
+    user_ID = request.session.get("api_user_id")
+    b_token = request.session.get("bearer_token")
+    bearer_token = getattr(settings, "SHIP_API_BEARER_TOKEN", b_token)
+    headers = {"Authorization": f"Bearer {bearer_token}", "Accept": "application/json"}
+    vessels_raw = request.session.get("auth_vessels_data", []) 
+
+    try:
+        assoc_url = f"https://shiptrackingapiauth-787201059405.asia-south2.run.app/VesselTracking/UserAssociatedVessels/{user_ID}"
+        logger.info(f"===>API GET URL: {assoc_url}")
+        assoc_res = requests.get(assoc_url, headers=headers, timeout=30)
+        logger.info(f"===>API response status: {assoc_res.status_code}")
+        vessels_raw, new_records = get_auth_vessels_data(assoc_res, request, start_date, end_date)        
+        return vessels_raw, new_records
+    except Exception:
+        logger.exception("API fetch failed")
+        return [], []
+
+
+def get_auth_vessels_data(assoc_res,request, start_date=None, end_date=None):
+    """
+    DATA HELPER: Fetches tracking points for user-associated vessels.
+    Can be filtered by date range and specific vessel ID.
+    """   
+    vessels_raw = request.session.get("auth_vessels_data", []) 
     new_records = []
     try:
-        # Step 1: Identify all vessels associated with this UserID
-        assoc_url = f"https://shiptrackingapiauth-787201059405.asia-south2.run.app/VesselTracking/UserAssociatedVessels/{user_ID}"
-        assoc_res = requests.get(assoc_url, headers=headers, timeout=10)
-        
         if assoc_res.status_code == 200:
             assoc_data = assoc_res.json()
             if not isinstance(assoc_data, list):
-                assoc_data = [assoc_data] if assoc_data else []
+                 assoc_data = [assoc_data] if assoc_data else []
 
-            if not vessels_raw:
-                # --- FIRST TIME LOAD: FULL HISTORY ---
-                for v in assoc_data:
-                    vid = v.get('VesselId')
-                    if not vid: continue
-                    hist_url = f"https://shiptrackingapiauth-787201059405.asia-south2.run.app/VesselTracking/getbyVesselId/{vid}"
-                    hist_res = requests.get(hist_url, headers=headers, timeout=10)
-                    if hist_res.status_code == 200:
-                        data = hist_res.json()
-                        points = data if isinstance(data, list) else ([data] if data else [])
-                        vessels_raw.extend(points)
-                new_records = vessels_raw
-            else:
-                # --- INCREMENTAL POLL: APPEND NEWEST ONLY ---
-                # assoc_data contains latest top 1 record for each ship
-                for new_v in assoc_data:
-                    vid = new_v.get('VesselId')
-                    dt = new_v.get('DateTime')
-                    # Deduplicate: Only append if this specific timestamp isn't in history yet
-                    exists = any(old.get('VesselId') == vid and old.get('DateTime') == dt for old in vessels_raw)
-                    if not exists:
-                        vessels_raw.append(new_v)
-                        new_records.append(new_v)
+            logger.info(f"===>Performing incremental update check against {len(vessels_raw)} records in session")
+            #logger.info(f"=============================>count {len(assoc_data)}")
 
-            # Save updated history back to Session
-            request.session["auth_vessels_data"] = vessels_raw
-            request.session["auth_vessels_last_fetch"] = time.time()
+            for new_v in assoc_data:
+                vid = new_v.get("VesselId")
+                dt = new_v.get("DateTime")
+                
+                #logger.info(f"======>Processing new vessel record: {vid} at {dt}")
+                # Check if this record already exists in session 
+                exists = any(
+                    old.get("VesselId") == vid and old.get("DateTime") == dt
+                    for old in vessels_raw
+                )
+
+                if not exists:
+                    vessels_raw.append(new_v)
+                    new_records.append(new_v)
+
+                    if new_records:
+                            request.session["auth_vessels_data"] = vessels_raw
+                            request.session["auth_vessels_last_fetch"] = time.time()
+                    #logger.info(f"Session updated with {len(new_records)} new records")
+
+        # --- Filter by Date Range before returning ---
+        if start_date or end_date:
+            s_cmp = start_date.replace("T", " ") if (start_date and start_date != "null") else "0000-00-00 00:00:00"
+            e_cmp = end_date.replace("T", " ") if (end_date and end_date != "null") else "9999-99-99 99:99:99"
+
+            if len(s_cmp) == 16: s_cmp += ":00"
+            if len(e_cmp) == 16: e_cmp += ":59"
+
+            vessels_raw = [v for v in vessels_raw if s_cmp <= v.get("DateTime", "") <= e_cmp]
+            new_records = [v for v in new_records if s_cmp <= v.get("DateTime", "") <= e_cmp]
+            logger.info(f"Filtered results to {len(vessels_raw)} total, {len(new_records)} new")
+
     except Exception:
         logger.exception("API fetch failed")
-    
+        return vessels_raw, new_records
+
+    logger.info(
+        f"get_auth_vessels_data: returning {len(vessels_raw)} total records, {len(new_records)} new records"
+    )
+
     return vessels_raw, new_records
+
 
 
 def process_auth_vessels_to_js(vessels_raw, is_incremental=False):
@@ -228,11 +289,13 @@ def process_auth_vessels_to_js(vessels_raw, is_incremental=False):
     JS FORMATTER: Converts raw API dictionaries into a structured JSON array for the map.
     Handles coordinate swapping and status mapping.
     """
+    logger.info(f"Processing {len(vessels_raw)} raw vessel records into JS format (is_incremental={is_incremental})")
     routes = {}
     for v in vessels_raw:
+        logger.debug(f"Processing vessel record: {v}")
         vname = v.get("VesselName") or f"Ship {v.get('VesselId')}"
         vkey = v.get("VesselId") or v.get("Id") or vname
-        
+        logger.debug(f"Vessel key: {vkey}, name: {vname}")
         # COORDINATE FIX: API Lat/Lng are reversed.
         lat = float(v.get("Longitude") or v.get("lat") or 17.15)
         lng = float(v.get("Latitude") or v.get("lng") or 82.4)
@@ -273,9 +336,22 @@ def user_map_auth_view(request):
     PRIVATE VIEW: Displays user's specific fleet.
     Requires authentication and Bearer Token.
     """
-    # Step 1: Initial fetch of tracking data
-    vessels_raw, _ = get_auth_vessels_data(request)
+    logger.info("user_map_auth_view: request started for user_id: " + str(request.session.get("api_user_id")))
+    # Step 1: Check if we have data, otherwise load defaults (Today 00:00 to Now)
+    if not request.session.get("auth_vessels_data"):
+        logger.info("user_map_auth_view: No session data found, performing initial fetch for today's data")
+        today_start = datetime.combine(datetime.now().date(), dt_time.min).strftime('%Y-%m-%dT%H:%M')
+        logger.info(f"user_map_auth_view: Fetching data from {today_start} to now")
+        now_str = datetime.now().strftime('%Y-%m-%dT%H:%M')
+        logger.info(f"user_map_auth_view: Current time for fetch end: {now_str}")
+        vessels_raw, _ = get_vessels_data_filtering(request, start_date=today_start, end_date=now_str)
+        logger.info(f"user_map_auth_view: Initial fetch returned {len(vessels_raw)} records")
+    else:
+        vessels_raw = request.session.get("auth_vessels_data", [])
+        logger.info(f"user_map_auth_view: Using session data with {len(vessels_raw)} records")
+        
     vessel_js_array = process_auth_vessels_to_js(vessels_raw)
+    logger.info(f"user_map_auth_view: Processed {len(vessel_js_array)} vessels for JS rendering")
     
     # Step 2: Initialize Map
     m = folium.Map(location=[17.15, 82.4], zoom_start=6, control_scale=True, zoom_control=False, tiles=None)
@@ -303,6 +379,41 @@ def vessel_data_json(request):
     POLLING ENDPOINT: Called by frontend every 30s.
     Returns ONLY the newest points found in the latest fetch to minimize payload.
     """
-    _, new_records = get_auth_vessels_data(request)
-    vessel_js_array = process_auth_vessels_to_js(new_records, is_incremental=True)
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    vessel_id = request.GET.get('vessel_id')
+    logger.info("vessel_data_json============>startdate : " + str(start_date))
+    logger.info("vessel_data_json============>enddate : " + str(end_date))
+    logger.info("vessel_data_json============>vessel_id : " + str(vessel_id))
+    if end_date == "null" or end_date == "":
+        live_flg=True
+        logger.info("++++++++++++++++++++++++++++>vessel_data_json: Fetching live data updates<---------------")
+        _, new_records = get_auth_vessels_data_LiveData(request, start_date=start_date, end_date=end_date, target_vessel_id=vessel_id)
+        logger.info(f"vessel_data_json: Found {len(new_records)} new records since last fetch")
+        vessel_js_array = process_auth_vessels_to_js(new_records, is_incremental=True)
+        logger.info(f"vessel_data_json: Returning {len(vessel_js_array)} new records in JSON response")
+        return JsonResponse({"vessels": vessel_js_array})       
+    else:
+        logger.info("------------>not fetching for live data") 
+        return JsonResponse({"vessels": []})        
+
+
+@login_required
+def vessel_filter_json(request):
+    """
+    FILTER ENDPOINT: Fetches historical data based on date range and optional vessel ID.
+    """
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    vessel_id = request.GET.get('vessel_id')
+    logger.info("vessel_filter_json============>startdate : " + str(start_date))
+    logger.info("vessel_filter_json============>enddate : " + str(end_date))
+    logger.info("vessel_filter_json============>vessel_id : " + str(vessel_id))
+    logger.info("vessel_filter_json: Initiating filtered fetch")
+    vessels_raw, _ = get_vessels_data_filtering(request, start_date=start_date, end_date=end_date, target_vessel_id=vessel_id)
+    logger.info(f"vessel_filter_json: Filtered fetch returned {len(vessels_raw)} records")
+    vessel_js_array = process_auth_vessels_to_js(vessels_raw)
+    logger.info(f"vessel_filter_json: Processed {len(vessel_js_array)} vessels for JS response")
+    #logger.info(f"vessel_filter_json: Sample vessel data for debugging: {vessel_js_array[0] if vessel_js_array else 'No vessels'}")
+    #logger.info("vessel_filter_json: request completed: returning JSON response :"+JsonResponse({"vessels": vessel_js_array}).content.decode())
     return JsonResponse({"vessels": vessel_js_array})

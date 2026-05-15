@@ -18,6 +18,9 @@ urlpatterns = [
     # Incremental JSON endpoint for live 30s updates
     path('user_map_auth/vessel_data_json/', views.vessel_data_json, name='vessel_data_json'),
     
+    # Filtered JSON endpoint for historical data
+    path('user_map_auth/vessel_filter_json/', views.vessel_filter_json, name='vessel_filter_json'),
+    
     # AUTHENTICATION ROUTES
     # API-based login system
     path('login/', views.login_view, name='login'),
