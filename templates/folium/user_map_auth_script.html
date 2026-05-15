@@ -124,11 +124,43 @@
             div.style.borderRadius = "12px"; div.style.boxShadow = "0 8px 24px rgba(0,0,0,0.2)";
             div.style.fontFamily = "Arial, sans-serif"; div.style.marginTop = "10px";
 
+            // Default dates logic
+            var now = new Date();
+            var today00 = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+            var formatDT = (d) => {
+                var pad = (n) => n.toString().padStart(2, '0');
+                return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+            };
+
             div.innerHTML = `
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
                     <span style="font-size:16px; font-weight:bold;">Vessel Controls</span>
                     <span id="closePanelBtn" style="cursor:pointer; font-size:18px;">&times;</span>
                 </div>
+                
+            
+                <div style="display:flex; flex-wrap:wrap; gap:12px; margin-bottom:12px;">
+                    <div style="flex:1; min-width:200px;">
+                        <label for="startDateTime" style="font-size:12px; color:#666;">Start Date & Time</label>
+                        <input type="datetime-local" id="startDateTime"
+                            style="width:100%; padding:6px; border-radius:4px; border:1px solid #ccc; box-sizing:border-box;"
+                            value="${formatDT(today00)}">
+                    </div>
+
+                    <div style="flex:1; min-width:200px;">
+                        <label for="endDateTime" style="font-size:12px; color:#666;">End Date & Time</label>
+                        <input type="datetime-local" id="endDateTime"
+                            style="width:100%; padding:6px; border-radius:4px; border:1px solid #ccc; box-sizing:border-box;"
+                            value="">
+                    </div>
+                </div>
+
+                <button onclick="applyDateFilter()"
+                    style="width:100%; padding:8px; border:none; background:#6a1b9a; color:white;
+                    border-radius:6px; cursor:pointer; margin-bottom:10px;">
+                    📅 Apply Date Filter
+                </button>
+
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:10px;">
                     <button onclick="startReplay()" style="padding:8px; border:none; background:#1565c0; color:white; border-radius:6px; cursor:pointer;">▶ Play</button>
                     <button onclick="pauseReplay()" style="padding:8px; border:none; background:#d32f2f; color:white; border-radius:6px; cursor:pointer;">⏸ Pause</button>
@@ -178,6 +210,7 @@
                     container.style.transform = "translate3d(" + currentX + "px, " + currentY + "px, 0)";
                 }
             }
+           
             toggleBtn.addEventListener("touchstart", dragStart, false); document.addEventListener("touchend", dragEnd, false); document.addEventListener("touchmove", drag, false);
             toggleBtn.addEventListener("mousedown", dragStart, false); document.addEventListener("mouseup", dragEnd, false); document.addEventListener("mousemove", drag, false);
 
@@ -198,6 +231,8 @@
 
         // Step 4: Map Initialization - Create Vessel Objects (Markers + Lines)
         var allPoints = [];
+        var vesselSelect = document.getElementById('vesselSelect');
+        console.log(`Initializing map with ${vessels.length} vessels. vesselSelect element:`, vesselSelect);
         vessels.forEach((v, index) => {
             if(v.route.length === 0) return;
             let current = v.route[v.currentIndex];
@@ -222,6 +257,16 @@
                     <span style="color:${v.color};font-weight:bold;">${v.name}</span>
                 </div>
             `;
+            
+            // 6. Populate vessel select
+            if (vesselSelect) {
+                let opt = document.createElement('option');
+                opt.value = v.vkey;
+                opt.textContent = v.name;
+                vesselSelect.appendChild(opt);
+                console.log(`Added vessel to select: ${v.name} (vkey: ${v.vkey}) vesselSelect now has ${vesselSelect.options.length} options.`);
+            }
+
             v.route.forEach(p => allPoints.push([p.lat, p.lng]));
         });
 
@@ -244,6 +289,71 @@
         }
 
         // --- GLOBAL CONTROL WINDOW FUNCTIONS ---
+        window.applyDateFilter = function () {
+            var startDate = document.getElementById("startDateTime").value;
+            var endDate = document.getElementById("endDateTime").value || "";
+            //var vesselId = document.getElementById("vesselSelect").value;
+            //console.log(`Applying filter - Start: ${startDate}, End: ${endDate}, VesselID: ${vesselId}`);
+            //if (!startDate || !endDate) {
+            //    alert("Please select both Start and End DateTime");
+            //    return;
+            //}
+
+            // Stop current replay
+            if (moveTimer) clearInterval(moveTimer);
+
+            var url = `/user_map_auth/vessel_filter_json/?start_date=${encodeURIComponent(startDate)}&end_date=${encodeURIComponent(endDate)}`;
+            //if (vesselId = document.getElementById("vesselSelect").value) url += `&vessel_id=${encodeURIComponent(vesselId)}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Filtered Data:", data);
+                    //if (!data.vessels || data.vessels.length === 0) {
+                    //    alert("No data found for the selected range.");
+                    //    return;
+                    //}
+
+                    // Clear old vessels
+                    vesselObjects.forEach(obj => {
+                        map.removeLayer(obj.marker);
+                        map.removeLayer(obj.fullPolyline);
+                        map.removeLayer(obj.replayPolyline);
+                    });
+                    vesselObjects = [];
+                    document.getElementById('vesselList').innerHTML = "";
+
+                    // Re-initialize with new data
+                    var newPoints = [];
+                    data.vessels.forEach((v, index) => {
+                        if(!v.route || v.route.length === 0) return;
+                        v.currentIndex = 0;
+                        let first = v.route[0];
+
+                        let marker = L.marker([first.lat, first.lng], { icon:createIcon(v.color) }).addTo(map);
+                        marker.bindPopup(getPopupHTML(first, v.name));
+
+                        let fullPolyline = L.polyline(v.route.map(p => [p.lat, p.lng]), { color:v.color, weight:1, opacity:0.25, dashArray:'6,6' }).addTo(map);
+                        let replayPolyline = L.polyline([[first.lat, first.lng]], { color:v.color, weight:2, opacity:0.9 }).addTo(map);
+
+                        vesselObjects.push({ vkey: v.vkey, marker: marker, fullPolyline: fullPolyline, replayPolyline: replayPolyline, data: v });
+
+                        document.getElementById('vesselList').innerHTML += `
+                            <div style="margin-bottom:6px;">
+                                <input type="checkbox" checked onchange="toggleVessel(${index}, this.checked)">
+                                <span style="color:${v.color};font-weight:bold;">${v.name}</span>
+                            </div>
+                        `;
+                        v.route.forEach(p => newPoints.push([p.lat, p.lng]));
+                    });
+
+                    if(newPoints.length > 0) map.fitBounds(newPoints, { padding:[40,40] });
+                    startReplay();
+                })
+                .catch(error => {
+                    console.error("Error fetching filtered data:", error);
+                });
+        }
         window.startReplay = function() { if(moveTimer) clearInterval(moveTimer); moveTimer = setInterval(moveVessels, animationSpeed); }
         window.pauseReplay = function() { clearInterval(moveTimer); }
         window.resetReplay = function() {
@@ -289,25 +399,36 @@
                     `;
                 } else {
                     // EXISTING VESSEL: Append new data points
-                    v.route.forEach(newPt => {
-                        let exists = obj.data.route.some(oldPt => oldPt.DateTime === newPt.DateTime);
-                        if (!exists) {
+                    let pointsToAdd = v.route.filter(newPt => !obj.data.route.some(oldPt => oldPt.DateTime === newPt.DateTime));
+                    
+                    if (pointsToAdd.length > 0) {
+                        console.log(`Adding ${pointsToAdd.length} new points for ${v.name}`);
+                        pointsToAdd.forEach(newPt => {
                             obj.data.route.push(newPt);
-                            obj.data.currentIndex = obj.data.route.length - 1;
-                            obj.marker.setLatLng([newPt.lat, newPt.lng]);
                             obj.fullPolyline.addLatLng([newPt.lat, newPt.lng]);
                             obj.replayPolyline.addLatLng([newPt.lat, newPt.lng]);
-                            // Step 14: ALWAYS refresh popup data
-                            obj.marker.setPopupContent(getPopupHTML(newPt, v.name));
+                        });
+
+                        // Update marker to the LATEST position
+                        let latestPt = pointsToAdd[pointsToAdd.length - 1];
+                        obj.data.currentIndex = obj.data.route.length - 1;
+                        obj.marker.setLatLng([latestPt.lat, latestPt.lng]);
+                        
+                        // ALWAYS refresh popup content with latest telemetry
+                        obj.marker.setPopupContent(getPopupHTML(latestPt, v.name));
+                        
+                        // If popup is open, ensure it stays updated
+                        if(obj.marker.isPopupOpen()) {
+                            obj.marker.openPopup();
                         }
-                    });
+                    }
                 }
             });
         }
 
         // Start the 30-second polling cycle
         setInterval(() => {
-            fetch("/user_map_auth/vessel_data_json/")
+            fetch(`/user_map_auth/vessel_data_json/?start_date=${encodeURIComponent(document.getElementById("startDateTime").value)}&end_date=${encodeURIComponent(document.getElementById("endDateTime").value || "")}`)
                 .then(res => res.json())
                 .then(data => { if (data.vessels) updateVessels(data.vessels); })
                 .catch(err => console.error("Live update failed:", err));
