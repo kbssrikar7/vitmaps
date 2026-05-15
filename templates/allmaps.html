@@ -125,6 +125,10 @@
             left: 12px !important;
             bottom: 12px !important;
         }
+
+        .modal-backdrop.show {
+           opacity: 0.4 !important;
+}
     </style>
 </head>
 
@@ -160,13 +164,13 @@
                 {% if user.is_authenticated %}
                 <button onclick="alert('Dashboard')">Dashboard</button>
                 <button onclick="window.location.href='{% url 'user_map_auth' %}'">MAP</button>
-                <button onclick="alert('Vessels')">Vessels</button>
+                <!-- <button onclick="window.location.href='{% url 'vessel_search' %}'">Vessels</button>-->
                 <button onclick="alert('Alert')">Alert</button>
                 <button onclick="window.location.href='{% url 'logout' %}'">Logout</button>
                 {% else %}
                 <button onclick="alert('Dashboard')">Dashboard</button>
                 <button onclick="window.location.href='{% url 'allmaps' %}'">MAP</button>
-                <button onclick="alert('Vessels')">Vessels</button>
+                <!-- <button onclick="window.location.href='{% url 'allmaps' %}'">Vessels</button> -->
                 <button onclick="alert('Alert')">Alert</button>
                 <button id="loginBtn">Login</button>
                 {% endif %}
@@ -182,8 +186,8 @@
 
     <!-- Login Modal -->
     <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content" style="border-radius: 12px; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);">
+        <div class="modal-dialog modal-dialog-centered" style="stroke-opacity: inherit;">
+            <div class="modal-content" style="border-radius: 12px;  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);">
                 <div class="modal-header" style="border-bottom: none;">
                     <h5 class="modal-title w-100 text-center" id="loginModalLabel">Login</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
