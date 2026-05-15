@@ -1,3 +1,5 @@
+from wsgiref import headers
+
 from django.urls import reverse
 
 import folium
@@ -179,56 +181,71 @@ def register_view(request):
         return JsonResponse({"success": False, "error": form.errors.as_json()})
     return render(request, 'register.html', {'form': UserCreationForm()})
 
+def get_vessels_data_filtering(request, start_date=None, end_date=None, target_vessel_id=None):
+    user_ID = request.session.get("api_user_id")
+    b_token = request.session.get("bearer_token")
+    bearer_token = getattr(settings, "SHIP_API_BEARER_TOKEN", b_token)
+    headers = {"Authorization": f"Bearer {bearer_token}", "Accept": "application/json"}
+    vessels_raw = request.session.get("auth_vessels_data", []) 
 
-def get_auth_vessels_data(request, start_date=None, end_date=None, target_vessel_id=None):
+    try:
+        s_date = start_date.replace("T", " ") if start_date else None
+        e_date = end_date.replace("T", " ") if end_date else None
+        assoc_url = "https://shiptrackingapiauth-787201059405.asia-south2.run.app/VesselTracking/GetDataWithUserIdAndDateRange"
+        payload = {"userId": user_ID, "startDate": s_date, "endDate": e_date}
+        if target_vessel_id:
+            payload["vesselId"] = target_vessel_id
+
+        logger.info(f"===>API POST URL: {assoc_url} Payload: {payload}")
+        assoc_res = requests.post(assoc_url, headers=headers, json=payload, timeout=30)
+        vessels_raw, new_records = get_auth_vessels_data(assoc_res, request, start_date, end_date)
+        return vessels_raw, new_records
+
+    except Exception:
+        logger.exception("API fetch failed")
+        return [], []
+
+def get_auth_vessels_data_LiveData(request, start_date=None, end_date=None, target_vessel_id=None):
+    user_ID = request.session.get("api_user_id")
+    b_token = request.session.get("bearer_token")
+    bearer_token = getattr(settings, "SHIP_API_BEARER_TOKEN", b_token)
+    headers = {"Authorization": f"Bearer {bearer_token}", "Accept": "application/json"}
+    vessels_raw = request.session.get("auth_vessels_data", []) 
+
+    try:
+        assoc_url = f"https://shiptrackingapiauth-787201059405.asia-south2.run.app/VesselTracking/UserAssociatedVessels/{user_ID}"
+        logger.info(f"===>API GET URL: {assoc_url}")
+        assoc_res = requests.get(assoc_url, headers=headers, timeout=30)
+        logger.info(f"===>API response status: {assoc_res.status_code}")
+        vessels_raw, new_records = get_auth_vessels_data(assoc_res, request, start_date, end_date)        
+        return vessels_raw, new_records
+    except Exception:
+        logger.exception("API fetch failed")
+        return [], []
+
+
+def get_auth_vessels_data(assoc_res,request, start_date=None, end_date=None):
     """
     DATA HELPER: Fetches tracking points for user-associated vessels.
     Can be filtered by date range and specific vessel ID.
-    """
-    user_ID = request.session.get("api_user_id")
-    b_token = request.session.get("bearer_token")
-
-    # If it's a filtered request (historical), we don't want to append to existing session data.
-    # If it's live tracking (no end_date), we want to use session data to find only new records.
-    is_live = not bool(end_date)
-    vessels_raw = request.session.get("auth_vessels_data", []) if is_live else []
-
-    bearer_token = getattr(settings, "SHIP_API_BEARER_TOKEN", b_token)
-    headers = {"Authorization": f"Bearer {bearer_token}", "Accept": "application/json"}
-
+    """   
+    vessels_raw = request.session.get("auth_vessels_data", []) 
     new_records = []
     try:
-        # Format dates for API (replace 'T' from datetime-local with space)
-        s_date = start_date.replace("T", " ") if start_date else None
-        e_date = end_date.replace("T", " ") if end_date else None
-
-        if start_date or end_date or target_vessel_id:
-            assoc_url = "https://shiptrackingapiauth-787201059405.asia-south2.run.app/VesselTracking/GetDataWithUserIdAndDateRange"
-            payload = {"userId": user_ID, "startDate": s_date, "endDate": e_date}
-            if target_vessel_id:
-                payload["vesselId"] = target_vessel_id
-
-            logger.info(f"===>API POST URL: {assoc_url} Payload: {payload}")
-            assoc_res = requests.post(assoc_url, headers=headers, json=payload, timeout=30)
-        else:
-            assoc_url = f"https://shiptrackingapiauth-787201059405.asia-south2.run.app/VesselTracking/UserAssociatedVessels/{user_ID}"
-            logger.info(f"===>API GET URL: {assoc_url}")
-            assoc_res = requests.get(assoc_url, headers=headers, timeout=30)
-
-        logger.info(f"===>API response status: {assoc_res.status_code}")
-
         if assoc_res.status_code == 200:
             assoc_data = assoc_res.json()
             if not isinstance(assoc_data, list):
                  assoc_data = [assoc_data] if assoc_data else []
 
             logger.info(f"===>Performing incremental update check against {len(vessels_raw)} records in session")
+            #logger.info(f"=============================>count {len(assoc_data)}")
 
             for new_v in assoc_data:
                 vid = new_v.get("VesselId")
                 dt = new_v.get("DateTime")
-
-                # Check if this record already exists in session
+                
+                #logger.info(f"======>Processing new vessel record: {vid} at {dt}")
+                # Check if this record already exists in session 
                 exists = any(
                     old.get("VesselId") == vid and old.get("DateTime") == dt
                     for old in vessels_raw
@@ -238,10 +255,10 @@ def get_auth_vessels_data(request, start_date=None, end_date=None, target_vessel
                     vessels_raw.append(new_v)
                     new_records.append(new_v)
 
-        if is_live and new_records:
-                request.session["auth_vessels_data"] = vessels_raw
-                request.session["auth_vessels_last_fetch"] = time.time()
-                logger.info(f"Session updated with {len(new_records)} new records")
+                    if new_records:
+                            request.session["auth_vessels_data"] = vessels_raw
+                            request.session["auth_vessels_last_fetch"] = time.time()
+                    #logger.info(f"Session updated with {len(new_records)} new records")
 
         # --- Filter by Date Range before returning ---
         if start_date or end_date:
@@ -257,21 +274,13 @@ def get_auth_vessels_data(request, start_date=None, end_date=None, target_vessel
 
     except Exception:
         logger.exception("API fetch failed")
+        return vessels_raw, new_records
 
     logger.info(
         f"get_auth_vessels_data: returning {len(vessels_raw)} total records, {len(new_records)} new records"
     )
 
     return vessels_raw, new_records
-
-
-def get_auth_vessels_data_filtering(request, start_date=None, end_date=None, target_vessel_id=None):
-    """
-    DATA HELPER: Fetches tracking points for user-associated vessels.
-    Can be filtered by date range and specific vessel ID.
-    """
-    # Simply reuse the main data helper with the same parameters
-    return get_auth_vessels_data(request, start_date=start_date, end_date=end_date, target_vessel_id=target_vessel_id)
 
 
 
@@ -320,7 +329,7 @@ def process_auth_vessels_to_js(vessels_raw, is_incremental=False):
         })
     return vessel_js_array
 
-live_flg=False
+
 @login_required
 def user_map_auth_view(request):
     """
@@ -335,10 +344,10 @@ def user_map_auth_view(request):
         logger.info(f"user_map_auth_view: Fetching data from {today_start} to now")
         now_str = datetime.now().strftime('%Y-%m-%dT%H:%M')
         logger.info(f"user_map_auth_view: Current time for fetch end: {now_str}")
-        vessels_raw, _ = get_auth_vessels_data(request, start_date=today_start, end_date=now_str)
+        vessels_raw, _ = get_vessels_data_filtering(request, start_date=today_start, end_date=now_str)
         logger.info(f"user_map_auth_view: Initial fetch returned {len(vessels_raw)} records")
     else:
-        vessels_raw, _ = get_auth_vessels_data(request)
+        vessels_raw = request.session.get("auth_vessels_data", [])
         logger.info(f"user_map_auth_view: Using session data with {len(vessels_raw)} records")
         
     vessel_js_array = process_auth_vessels_to_js(vessels_raw)
@@ -377,7 +386,9 @@ def vessel_data_json(request):
     logger.info("vessel_data_json============>enddate : " + str(end_date))
     logger.info("vessel_data_json============>vessel_id : " + str(vessel_id))
     if end_date == "null" or end_date == "":
-        _, new_records = get_auth_vessels_data_filtering(request, start_date=start_date, end_date=end_date, target_vessel_id=vessel_id)
+        live_flg=True
+        logger.info("++++++++++++++++++++++++++++>vessel_data_json: Fetching live data updates<---------------")
+        _, new_records = get_auth_vessels_data_LiveData(request, start_date=start_date, end_date=end_date, target_vessel_id=vessel_id)
         logger.info(f"vessel_data_json: Found {len(new_records)} new records since last fetch")
         vessel_js_array = process_auth_vessels_to_js(new_records, is_incremental=True)
         logger.info(f"vessel_data_json: Returning {len(vessel_js_array)} new records in JSON response")
@@ -399,7 +410,7 @@ def vessel_filter_json(request):
     logger.info("vessel_filter_json============>enddate : " + str(end_date))
     logger.info("vessel_filter_json============>vessel_id : " + str(vessel_id))
     logger.info("vessel_filter_json: Initiating filtered fetch")
-    vessels_raw, _ = get_auth_vessels_data(request, start_date=start_date, end_date=end_date, target_vessel_id=vessel_id)
+    vessels_raw, _ = get_vessels_data_filtering(request, start_date=start_date, end_date=end_date, target_vessel_id=vessel_id)
     logger.info(f"vessel_filter_json: Filtered fetch returned {len(vessels_raw)} records")
     vessel_js_array = process_auth_vessels_to_js(vessels_raw)
     logger.info(f"vessel_filter_json: Processed {len(vessel_js_array)} vessels for JS response")

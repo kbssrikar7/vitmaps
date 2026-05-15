@@ -133,49 +133,62 @@
             };
 
             div.innerHTML = `
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                    <span style="font-size:16px; font-weight:bold;">Vessel Controls</span>
-                    <span id="closePanelBtn" style="cursor:pointer; font-size:18px;">&times;</span>
-                </div>
-                
-            
-                <div style="display:flex; flex-wrap:wrap; gap:12px; margin-bottom:12px;">
-                    <div style="flex:1; min-width:200px;">
-                        <label for="startDateTime" style="font-size:12px; color:#666;">Start Date & Time</label>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                    <span style="font-size:12px; font-weight:bold;">Vessel Controls</span>
+                    <span id="closePanelBtn" style="cursor:pointer; font-size:14px;">&times;</span>
+                </div>                
+
+                <!-- Date range inputs -->
+                <div style="display:flex; flex-wrap:wrap; gap:4px; margin-bottom:4px;">
+                    <div style="flex:1; min-width:120px;">
+                        <label for="startDateTime" style="font-size:10px; color:#666;">Start</label>
                         <input type="datetime-local" id="startDateTime"
-                            style="width:100%; padding:6px; border-radius:4px; border:1px solid #ccc; box-sizing:border-box;"
+                            style="width:100%; padding:3px; border-radius:3px; border:1px solid #ccc; font-size:10px;"
                             value="${formatDT(today00)}">
                     </div>
 
-                    <div style="flex:1; min-width:200px;">
-                        <label for="endDateTime" style="font-size:12px; color:#666;">End Date & Time</label>
+                    <div style="flex:1; min-width:120px;">
+                        <label for="endDateTime" style="font-size:10px; color:#666;">End</label>
                         <input type="datetime-local" id="endDateTime"
-                            style="width:100%; padding:6px; border-radius:4px; border:1px solid #ccc; box-sizing:border-box;"
+                            style="width:100%; padding:3px; border-radius:3px; border:1px solid #ccc; font-size:10px;"
                             value="">
                     </div>
                 </div>
 
+                <!-- Apply button -->
                 <button onclick="applyDateFilter()"
-                    style="width:100%; padding:8px; border:none; background:#6a1b9a; color:white;
-                    border-radius:6px; cursor:pointer; margin-bottom:10px;">
-                    📅 Apply Date Filter
+                    style="width:100%; padding:4px; border:none; background:#6a1b9a; color:white;
+                    border-radius:3px; cursor:pointer; margin-bottom:4px; font-size:11px;">
+                    📅 Apply
                 </button>
 
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:10px;">
-                    <button onclick="startReplay()" style="padding:8px; border:none; background:#1565c0; color:white; border-radius:6px; cursor:pointer;">▶ Play</button>
-                    <button onclick="pauseReplay()" style="padding:8px; border:none; background:#d32f2f; color:white; border-radius:6px; cursor:pointer;">⏸ Pause</button>
+                <!-- Play/Pause buttons -->
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(70px, 1fr)); gap:4px; margin-bottom:4px;">
+                    <button onclick="startReplay()" style="padding:4px; border:none; background:#1565c0; color:white; border-radius:3px; cursor:pointer; font-size:11px;">▶</button>
+                    <button onclick="pauseReplay()" style="padding:4px; border:none; background:#d32f2f; color:white; border-radius:3px; cursor:pointer; font-size:11px;">⏸</button>
                 </div>
-                <button onclick="resetReplay()" style="width:100%; margin-bottom:12px; padding:8px; border:none; background:#2e7d32; color:white; border-radius:6px; cursor:pointer;">⟳ Reset Replay</button>
-                <label style="font-size:12px; color:#666;">Animation Speed</label>
-                <select onchange="changeSpeed(this.value)" style="width:100%; padding:8px; margin-top:5px; border-radius:4px; border:1px solid #ccc;">
-                    <option value="2000">🐌 Slow</option>
+
+                <!-- Reset -->
+                <button onclick="resetReplay()" style="width:100%; margin-bottom:4px; padding:4px; border:none; background:#2e7d32; color:white; border-radius:3px; cursor:pointer; font-size:11px;">⟳ Reset</button>
+
+                <!-- Speed selector -->
+                <label style="font-size:10px; color:#666;">Speed</label>
+                <select onchange="changeSpeed(this.value)" style="width:100%; padding:4px; margin-top:3px; border-radius:3px; border:1px solid #ccc; font-size:11px;">
+                    <option value="2000">🐌</option>
                     <option value="1000" selected>Normal</option>
-                    <option value="400">⚡ Fast</option>
-                    <option value="150">🚀 Very Fast</option>
+                    <option value="400">⚡</option>
+                    <option value="150">🚀</option>
                 </select>
-                <hr style="margin:15px 0; border:0; border-top:1px solid #eee;">
-                <div style="font-size:13px; font-weight:bold; margin-bottom:8px;">Vessels</div>
-                <div id="vesselList" style="max-height:150px; overflow-y:auto;"></div>
+
+                <hr style="margin:6px 0; border:0; border-top:1px solid #eee;">
+
+                <!-- Vessel list -->
+                <div style="font-size:11px; font-weight:bold; margin-bottom:3px;">Vessels</div>
+                <div id="vesselList" 
+                    style="display:grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); 
+                            gap:4px; max-height:80px; overflow-y:auto; font-size:10px; border:1px solid #ddd; padding:3px; border-radius:3px;">
+                </div>
+
             `;
 
             // Step 3: Implement Draggable Logic for the UI Panel
