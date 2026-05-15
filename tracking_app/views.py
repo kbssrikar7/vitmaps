@@ -10,6 +10,7 @@ import requests
 import time
 from datetime import datetime, time as dt_time
 from django.conf import settings
+from django.core.cache import cache
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 from django.contrib.auth import login, logout
@@ -20,6 +21,8 @@ from django.contrib.auth.models import User
 
 # Standard logger for tracking app events
 logger = logging.getLogger(__name__)
+PUBLIC_MAP_CACHE_KEY = "public_allmaps_html"
+PUBLIC_MAP_CACHE_TTL_SECONDS = 60
 
 # --- GLOBAL MAP CONFIGURATION ---
 # Injecting local Bootstrap CSS/JS into Folium's default resource list
@@ -48,31 +51,32 @@ def allmaps_view(request):
     """
     logger.info("allmaps_view: request started")
 
-    # Step 1: Check session for cached data, otherwise fetch from Public API
-    vessels_raw = request.session.get("vessels_raw", [])
-    if not vessels_raw:
-        api_url = "https://shiptrackingapi-787201059405.asia-south2.run.app/VesselTracking/GetAll"
-        try:
-            response = requests.get(api_url, timeout=10)
-            if response.status_code == 200:
-                vessels_raw = response.json()
-        except Exception:
-            logger.exception("allmaps_view: API fetch failed")
-        
-        # Fallback to local JSON if API fails or returns no data
-        if not vessels_raw:
-            try:
-                local_path = os.path.join(settings.BASE_DIR, 'static', 'data', 'vessels.json')
-                if os.path.exists(local_path):
-                    with open(local_path, 'r') as f:
-                        vessels_raw = json.load(f)
-            except Exception:
-                logger.exception("allmaps_view: Local fallback failed")
+    cached_map_html = cache.get(PUBLIC_MAP_CACHE_KEY)
+    if cached_map_html:
+        return render(request, 'allmaps.html', {'map_html': cached_map_html})
 
-        if vessels_raw:
-            if not isinstance(vessels_raw, list):
-                vessels_raw = [vessels_raw]
-            request.session["vessels_raw"] = vessels_raw
+    # Step 1: Fetch public vessel data without storing the full payload in session.
+    vessels_raw = []
+    api_url = "https://shiptrackingapi-787201059405.asia-south2.run.app/VesselTracking/GetAll"
+    try:
+        response = requests.get(api_url, timeout=10)
+        if response.status_code == 200:
+            vessels_raw = response.json()
+    except Exception:
+        logger.exception("allmaps_view: API fetch failed")
+
+    # Fallback to local JSON if API fails or returns no data.
+    if not vessels_raw:
+        try:
+            local_path = os.path.join(settings.BASE_DIR, 'static', 'data', 'vessels.json')
+            if os.path.exists(local_path):
+                with open(local_path, 'r') as f:
+                    vessels_raw = json.load(f)
+        except Exception:
+            logger.exception("allmaps_view: Local fallback failed")
+
+    if vessels_raw and not isinstance(vessels_raw, list):
+        vessels_raw = [vessels_raw]
 
     # Step 2: Handle empty data case
     if not vessels_raw:
@@ -125,7 +129,9 @@ def allmaps_view(request):
     m.get_root().html.add_child(folium.Element(js_code))
 
     # Step 9: Return HTML response
-    return render(request, 'allmaps.html', {'map_html': m._repr_html_()})
+    map_html = m._repr_html_()
+    cache.set(PUBLIC_MAP_CACHE_KEY, map_html, PUBLIC_MAP_CACHE_TTL_SECONDS)
+    return render(request, 'allmaps.html', {'map_html': map_html})
 
 
 def login_view(request):
