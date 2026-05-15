@@ -204,6 +204,7 @@ def get_vessels_data_filtering(request, start_date=None, end_date=None, target_v
     except Exception:
         logger.exception("API fetch failed")
         return [], []
+        return [], []
 
 def get_auth_vessels_data_LiveData(request, start_date=None, end_date=None, target_vessel_id=None):
     user_ID = request.session.get("api_user_id")
@@ -274,7 +275,7 @@ def get_auth_vessels_data(assoc_res,request, start_date=None, end_date=None):
 
     except Exception:
         logger.exception("API fetch failed")
-        return vessels_raw, new_records
+        return [], []
 
     logger.info(
         f"get_auth_vessels_data: returning {len(vessels_raw)} total records, {len(new_records)} new records"
