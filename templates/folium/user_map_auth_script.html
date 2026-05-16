@@ -141,16 +141,16 @@
                 <!-- Date range inputs -->
                 <div style="display:flex; flex-wrap:wrap; gap:4px; margin-bottom:4px;">
                     <div style="flex:1; min-width:120px;">
-                        <label for="startDateTime" style="font-size:10px; color:#666;">Start</label>
+                        <label for="startDateTime" style="font-size:10px; color:#666; width:58px;">Start Date :</label>
                         <input type="datetime-local" id="startDateTime"
-                            style="width:100%; padding:3px; border-radius:3px; border:1px solid #ccc; font-size:10px;"
+                            style="width:70%; padding:3px; border-radius:3px; border:1px solid #ccc; font-size:10px;"
                             value="${formatDT(today00)}">
                     </div>
 
                     <div style="flex:1; min-width:120px;">
-                        <label for="endDateTime" style="font-size:10px; color:#666;">End</label>
+                        <label for="endDateTime" style="font-size:10px; color:#666; width:58px;">End Date :</label>
                         <input type="datetime-local" id="endDateTime"
-                            style="width:100%; padding:3px; border-radius:3px; border:1px solid #ccc; font-size:10px;"
+                            style="width:70%; padding:3px; border-radius:3px; border:1px solid #ccc; font-size:10px;"
                             value="">
                     </div>
                 </div>
@@ -172,8 +172,8 @@
                 <button onclick="resetReplay()" style="width:100%; margin-bottom:4px; padding:4px; border:none; background:#2e7d32; color:white; border-radius:3px; cursor:pointer; font-size:11px;">⟳ Reset</button>
 
                 <!-- Speed selector -->
-                <label style="font-size:10px; color:#666;">Speed</label>
-                <select onchange="changeSpeed(this.value)" style="width:100%; padding:4px; margin-top:3px; border-radius:3px; border:1px solid #ccc; font-size:11px;">
+                <label style="font-size:10px; color:#666; width:58px;">Speed :</label>
+                <select onchange="changeSpeed(this.value)" style="width:70%; padding:4px; margin-top:3px; border-radius:3px; border:1px solid #ccc; font-size:11px;">
                     <option value="2000">🐌 Slow</option>
                     <option value="1000" selected>Normal</option>
                     <option value="400">⚡ Fast</option>
