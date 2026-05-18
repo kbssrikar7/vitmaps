@@ -372,7 +372,7 @@ def user_map_auth_view(request):
         now_str = "" #datetime.now().strftime('%Y-%m-%dT%H:%M')
         logger.info(f"user_map_auth_view: Current time for fetch end: {now_str}")
         vessels_raw, _ = get_vessels_data_filtering(request, start_date=today_start, end_date=now_str)
-        vessels_raw, _ =get_all_user_vessels_data(request)
+        vessels_raw, _ = get_all_user_vessels_data(request) #To get the Latest data for the all vessels
         logger.info(f"user_map_auth_view: Initial fetch returned {len(vessels_raw)} records")
     else:
         vessels_raw = request.session.get("auth_vessels_data", [])
