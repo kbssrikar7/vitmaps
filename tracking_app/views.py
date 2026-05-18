@@ -1,7 +1,6 @@
 from wsgiref import headers
 
 from django.urls import reverse
-from .models import Vessel
 
 import folium
 import json
@@ -19,9 +18,6 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.http import JsonResponse
 from django.contrib.auth.models import User
-
-from tracking_app.models import Vessel
-
 
 # Standard logger for tracking app events
 logger = logging.getLogger(__name__)
@@ -286,16 +282,6 @@ def get_auth_vessels_data(assoc_res,request, start_date=None, end_date=None):
         logger.exception("API fetch failed")
         return [], []
 
-           
-    # ==========================================================
-    # MAP
-    # ==========================================================
-    m = folium.Map(
-        location=[17.15, 82.4],
-        zoom_start=6,
-        control_scale=True,
-        zoom_control=False,
-        tiles=None
     logger.info(
         f"get_auth_vessels_data: returning {len(vessels_raw)} total records, {len(new_records)} new records"
     )
@@ -386,229 +372,6 @@ def user_map_auth_view(request):
     folium.TileLayer(tiles="https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png", attr="© Carto", name="Light No Labels", show=False).add_to(m)
     folium.TileLayer(tiles="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", attr="© Carto", name="Carto Voyager", show=False).add_to(m)
 
-    return render(
-        request,
-        'user_map_auth.html',
-        {
-            'map_auth_html': m._repr_html_()
-        }
-    )
-
-""" def vessel_search_view(request):
-    vessels = Vessel.objects.all()
-    logger.info(vessels)
-    search = request.GET.get('search', '')
-    vessel_type = request.GET.get('type','')
-    flag = request.GET.get('flag','')
-
-    if search:
-        vessels = vessels.filter(name__icontains=search)
-
-    if vessel_type and vessel_type != 'All Types':
-        vessels = vessels.filter(vessel_type=vessel_type)
-
-    if flag and flag != 'All Flags':
-        vessels = vessels.filter(flag=flag)
-
-    context = {
-        'vessels': vessels,
-        'count': vessels.count(),
-        'search': search,
-        'selected_type': vessel_type,
-        'selected_flag': flag,
-    }
-    logger.info("context=%s", context)
-    return render(request, 'vessel_search.html', context) """
-
-
-
-""" def vessel_search_view(request):
-
-    logger.info("user_map_auth_view: request started user_authenticated=%s", request.user.is_authenticated)
-
-    if not request.user.is_authenticated:
-        logger.warning("vessel_search_view: unauthenticated request redirected to login")
-        return redirect('login')
-    
-    #user_ID = request.session.get("api_user_id")
-    user_ID ="1"
-    b_token = request.session.get("bearer_token")
-
-    api_url = f"https://shiptrackingapiauth-787201059405.asia-south2.run.app/VesselTracking/getbyVesselId/{user_ID}"
-
-    headers = {
-    "Authorization": b_token
-         }
-
-    try:
-        response = requests.get(api_url,headers=headers)
-        vessels = response.json()
-    except Exception as e:
-        vessels = []
-
-    search = request.GET.get('search', '')
-    vessel_type = request.GET.get('type','')
-    flag = request.GET.get('flag','')
-
-    # Search Filter
-    if search:
-        vessels = [
-            vessel for vessel in vessels
-            if search.lower() in vessel['vesselid'].lower()
-        ]
-
-    # Vessel Type Filter
-    if vessel_type and vessel_type != 'All Types':
-        vessels = [
-            vessel for vessel in vessels
-            if vessel['vessel_type'] == vessel_type
-        ]
-
-    # Flag Filter
-    if flag and flag != 'All Flags':
-        vessels = [
-            vessel for vessel in vessels
-            if vessel['flag'] == flag
-        ]
-
-    context = {
-        'vessels': vessels,
-        'count': len(vessels),
-        'search': search,
-        'selected_type': vessel_type,
-        'selected_flag': flag,
-    }
-
-    return render(request, 'vessel_search.html', context) """
-
-def vessel_search_view(request):
-
-    logger.info(
-        "vessel_search_view: user_authenticated=%s",
-        request.user.is_authenticated
-    )
-
-    if not request.user.is_authenticated:
-        return redirect('login')
-
-    vessel_id = request.session.get("api_user_id")
-    logger.info("Vessel ID: %s", vessel_id)
-    bearer_token = request.session.get("bearer_token")
-    logger.info("Bearer token: %s", bearer_token)
-
-    api_url = (
-        f"https://shiptrackingapiauth-787201059405.asia-south2.run.app/"
-        f"GetAllVessels/{vessel_id}"
-    )
-    logger.info("api_url: %s", api_url)
-    headers = {
-        "Authorization": f"Bearer {bearer_token}",
-        "Accept": "application/json"
-    }
-
-    vessels = []
-    total_vessels_count = 0
-    try:
-
-        response = requests.get(
-            api_url,
-            headers=headers,
-            timeout=10
-        )
-
-        logger.info(
-            "API STATUS CODE = %s",
-            response.status_code
-        )
-             
-        if response.status_code == 200:
-
-            api_data = response.json()
-            total_vessels_count = api_data.get('count', 0) 
-            logger.info("API RESPONSE = %s", api_data)
-
-            # API may return dict or list
-            # CASE 1 -> API returns LIST
-            if isinstance(api_data, list):
-
-                vessels = api_data   
-
-            # CASE 2 -> API returns DICT
-            elif isinstance(api_data, dict):
-
-                # If data key exists
-                if 'data' in api_data:
-
-                    if isinstance(api_data['data'], list):
-                        vessels = api_data['data']
-
-                    elif isinstance(api_data['data'], dict):
-                        vessels = [api_data['data']]
-
-                else:
-                    vessels = [api_data]
-
-
-
-        else:
-            logger.warning(
-                "API FAILED STATUS=%s",
-                response.status_code
-            )
-
-    except Exception as e:
-
-        logger.exception("VESSEL API ERROR")
-
-    # Aplly Filters
-
-    search = request.GET.get('search', '').strip()
-    vessel_type = request.GET.get('type', '').strip()
-    flag = request.GET.get('flag', '').strip()
-
-    # SEARCH FILTER
-    if search:
-
-        vessels = [
-            vessel for vessel in vessels
-            if search.lower() in str(
-                vessel.get('VesselName', '')
-            ).lower()
-        ]
- 
-    logger.info(vessels)
-    
-    # TYPE FILTER
-    if vessel_type and vessel_type != 'All Types':
-
-        vessels = [
-            vessel for vessel in vessels
-            if vessel.get('VesselType', '') == vessel_type
-        ]
-
-    # FLAG FILTER
-    if flag and flag != 'All Flags':
-
-        vessels = [
-            vessel for vessel in vessels
-            if vessel.get('Flag', '') == flag
-        ]
-
-    context = {
-        'vessels': vessels,
-        'total_vessels_count': total_vessels_count,
-        'count': len(vessels),
-        'search': search,
-        'selected_type': vessel_type,
-        'selected_flag': flag,
-    }
-
-    logger.info("TOTAL VESSELS = %s", len(vessels))
-    return render(
-        request,
-        'vessel_search.html',
-        context
-    )
     folium.LayerControl(position="bottomright").add_to(m)
 
     # Step 4: Inject Replay/Live Tracking Logic JS
