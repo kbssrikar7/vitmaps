@@ -187,6 +187,25 @@ def register_view(request):
         return JsonResponse({"success": False, "error": form.errors.as_json()})
     return render(request, 'register.html', {'form': UserCreationForm()})
 
+def get_all_user_vessels_data(request, start_date=None, end_date=None, target_vessel_id=None):
+    user_ID = request.session.get("api_user_id")
+    b_token = request.session.get("bearer_token")
+    bearer_token = getattr(settings, "SHIP_API_BEARER_TOKEN", b_token)
+    headers = {"Authorization": f"Bearer {bearer_token}", "Accept": "application/json"}
+    vessels_raw = request.session.get("auth_vessels_data", []) 
+
+    try:
+        assoc_url = f"https://shiptrackingapiauth-787201059405.asia-south2.run.app/VesselTracking/UserAssociatedVessels/{user_ID}"
+        logger.info(f"===>API GET URL: {assoc_url}")
+        assoc_res = requests.get(assoc_url, headers=headers, timeout=30)
+        logger.info(f"===>API response status: {assoc_res.status_code}")
+        vessels_raw, new_records = get_auth_vessels_data(assoc_res, request, start_date, end_date)        
+        return vessels_raw, new_records
+    except Exception:
+        logger.exception("API fetch failed")
+        return [], []
+
+
 def get_vessels_data_filtering(request, start_date=None, end_date=None, target_vessel_id=None):
     user_ID = request.session.get("api_user_id")
     b_token = request.session.get("bearer_token")
@@ -224,7 +243,7 @@ def get_auth_vessels_data_LiveData(request, start_date=None, end_date=None, targ
         logger.info(f"===>API GET URL: {assoc_url}")
         assoc_res = requests.get(assoc_url, headers=headers, timeout=30)
         logger.info(f"===>API response status: {assoc_res.status_code}")
-        vessels_raw, new_records = get_auth_vessels_data(assoc_res, request, start_date, end_date)        
+        vessels_raw, new_records = get_auth_vessels_data(assoc_res, request, start_date, end_date)       
         return vessels_raw, new_records
     except Exception:
         logger.exception("API fetch failed")
@@ -346,12 +365,14 @@ def user_map_auth_view(request):
     logger.info("user_map_auth_view: request started for user_id: " + str(request.session.get("api_user_id")))
     # Step 1: Check if we have data, otherwise load defaults (Today 00:00 to Now)
     if not request.session.get("auth_vessels_data"):
+        # This will populate session with today's data
         logger.info("user_map_auth_view: No session data found, performing initial fetch for today's data")
         today_start = datetime.combine(datetime.now().date(), dt_time.min).strftime('%Y-%m-%dT%H:%M')
         logger.info(f"user_map_auth_view: Fetching data from {today_start} to now")
-        now_str = datetime.now().strftime('%Y-%m-%dT%H:%M')
+        now_str = "" #datetime.now().strftime('%Y-%m-%dT%H:%M')
         logger.info(f"user_map_auth_view: Current time for fetch end: {now_str}")
         vessels_raw, _ = get_vessels_data_filtering(request, start_date=today_start, end_date=now_str)
+        vessels_raw, _ =get_all_user_vessels_data(request)
         logger.info(f"user_map_auth_view: Initial fetch returned {len(vessels_raw)} records")
     else:
         vessels_raw = request.session.get("auth_vessels_data", [])
