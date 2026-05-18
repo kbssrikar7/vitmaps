@@ -1,18 +1,44 @@
-# urls.py
+# tracking_app/urls.py
 from django.urls import path
 from . import views
 
+# Defining URL patterns for the tracking application
 urlpatterns = [
+    # PUBLIC ROUTES
+    # Home page displaying public vessel data
     path('', views.allmaps_view, name='allmaps'),
+    
+    # Chrome DevTools specific protocol configuration
     path('.well-known/appspecific/com.chrome.devtools.json', views.chrome_devtools_config),
     path('vessel_search/', views.vessel_search_view, name='vessel_search'),
+    
+    # PRIVATE ROUTES (Requires Login)
+    # Main authenticated map view for private fleets
     path('user_map_auth/', views.user_map_auth_view, name='user_map_auth'),
+    
+    # Incremental JSON endpoint for live 30s updates
+    path('user_map_auth/vessel_data_json/', views.vessel_data_json, name='vessel_data_json'),
+    
+    # Filtered JSON endpoint for historical data
+    path('user_map_auth/vessel_filter_json/', views.vessel_filter_json, name='vessel_filter_json'),
+    
+    # AUTHENTICATION ROUTES
+    # API-based login system
     path('login/', views.login_view, name='login'),
+    
+    # Standard logout
     path('logout/', views.logout_view, name='logout'),
+    
+    # User registration
     path('register/', views.register_view, name='register'),
-   # path('map/', views.map_view, name='map'),
 
     # APIs
     #path('api/update/', api_views.update_location),
     #path('api/latest/<str:device_id>/', api_views.latest_location),
+    # REST API ENDPOINTS (For mobile/device updates)
+    # Update current location for a device
+    path('api/update/', api_views.update_location),
+    
+    # Fetch the most recent location for a specific device
+    path('api/latest/<str:device_id>/', api_views.latest_location),
 ]

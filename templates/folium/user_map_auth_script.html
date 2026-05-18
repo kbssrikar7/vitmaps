@@ -1,29 +1,26 @@
     <script>
-
+    /**
+     * AUTHENTICATED MAP SCRIPT
+     * This script manages the live tracking and replay experience for logged-in users.
+     * It handles real-time data polling, marker movement, track lines, and vessel UI controls.
+     */
     window.onload = function() {
 
         var map = {{ map_name }};
-
         var vessels = {{ vessels_json|safe }};
-
         var vesselObjects = [];
-
         var animationSpeed = 1000;
-
         var moveTimer = null;
 
-        // ======================================================
-        // ZOOM CONTROL
-        // ======================================================
+        // Step 1: Initialize Zoom Control (Bottom Left for better UI balance)
         L.control.zoom({
             position:'bottomleft'
         }).addTo(map);
 
-        // ======================================================
-        // POPUP
-        // ======================================================
+        /**
+         * Helper: Generates HTML for the ship popups with live telemetry data.
+         */
         function getPopupHTML(pt, vName) {
-
             let dt = pt.DateTime.includes('T')
                 ? pt.DateTime.replace('T',' ').split('.')[0]
                 : pt.DateTime;
@@ -57,11 +54,10 @@
             </div>`;
         }
 
-        // ======================================================
-        // YOUR ORIGINAL SHIP ICON
-        // ======================================================
+        /**
+         * Helper: Creates a custom DivIcon that looks like a modern ship and can be rotated.
+         */
         function createIcon(color) {
-
             return L.divIcon({
                 className: '',
                 html: `
@@ -72,20 +68,13 @@
                     transform:rotate(-90deg);
                     filter:drop-shadow(0 4px 6px rgba(0,0,0,0.45));
                 ">
-
                     <div style="
                         position:absolute;
                         inset:2px 1px 2px 0;
-                        background:linear-gradient(
-                            135deg,
-                            rgba(255,255,255,0.28),
-                            ${color} 38%,
-                            rgba(0,0,0,0.2)
-                        );
+                        background:linear-gradient(135deg, rgba(255,255,255,0.28), ${color} 38%, rgba(0,0,0,0.2));
                         border:2px solid #ffffff;
                         border-radius:18px 5px 5px 18px;
                     "></div>
-
                     <div style="
                         position:absolute;
                         right:-1px;
@@ -96,7 +85,6 @@
                         border-bottom:4px solid transparent;
                         border-left:8px solid #ffffff;
                     "></div>
-
                     <div style="
                         position:absolute;
                         left:8px;
@@ -106,157 +94,149 @@
                         background:rgba(255,255,255,0.9);
                         border-radius:3px;
                     "></div>
-
-                </div>
-                `,
+                </div>`,
                 iconSize:[34,22],
                 iconAnchor:[17,11]
             });
         }
 
-        // ======================================================
-        // TOGGLEABLE CONTROL PANEL
-        // ======================================================
-        var controlPanel = L.control({position:'bottomleft'});
+        // Step 2: Initialize Vessel Control Panel (Draggable & Toggleable)
+        var controlPanel = L.control({position:'bottomright'});
 
         controlPanel.onAdd = function() {
-
             var container = L.DomUtil.create('div', 'control-panel-container');
 
-            // 1. THE TOGGLE BUTTON (Movable effect via absolute positioning in control corner)
+            // --- THE TOGGLE BUTTON ---
             var toggleBtn = L.DomUtil.create('div', '', container);
             toggleBtn.innerHTML = `
                 <div id="panelToggleBtn" style="
-                    background: #1565c0;
-                    color: white;
-                    width: 45px;
-                    height: 45px;
-                    border-radius: 50%;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    cursor: pointer;
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-                    font-size: 20px;
-                    transition: transform 0.2s;
-                " title="Toggle Controls">
-                    ⚙️
-                </div>
+                    background: #1565c0; color: white; width: 45px; height: 45px; border-radius: 50%;
+                    display: flex; align-items: center; justify-content: center; cursor: pointer;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.3); font-size: 20px; transition: transform 0.2s;
+                " title="Toggle Controls">⚙️</div>
             `;
 
-            // 2. THE ACTUAL PANEL (Hidden by default)
+            // --- THE SETTINGS PANEL (Hidden by default) ---
             var div = L.DomUtil.create('div', '', container);
             div.id = "vesselControlPanel";
-            div.style.display = "none"; // Auto hide
-            div.style.background = "white";
-            div.style.padding = "15px";
-            div.style.width = "240px";
-            div.style.borderRadius = "12px";
-            div.style.boxShadow = "0 8px 24px rgba(0,0,0,0.2)";
-            div.style.fontFamily = "Arial, sans-serif";
-            div.style.marginTop = "10px";
+            div.style.display = "none";
+            div.style.background = "white"; div.style.padding = "15px"; div.style.width = "240px";
+            div.style.borderRadius = "12px"; div.style.boxShadow = "0 8px 24px rgba(0,0,0,0.2)";
+            div.style.fontFamily = "Arial, sans-serif"; div.style.marginTop = "10px";
+
+            // Default dates logic
+            var now = new Date();
+            var today00 = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+            var formatDT = (d) => {
+                var pad = (n) => n.toString().padStart(2, '0');
+                return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+            };
 
             div.innerHTML = `
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                    <span style="font-size:16px; font-weight:bold;">Vessel Controls</span>
-                    <span id="closePanelBtn" style="cursor:pointer; font-size:18px;">&times;</span>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                    <span style="font-size:12px; font-weight:bold;">Vessel Controls</span>
+                    <span id="closePanelBtn" style="cursor:pointer; font-size:14px;">&times;</span>
+                </div>                
+
+                <!-- Date range inputs -->
+                <div style="display:flex; flex-wrap:wrap; gap:4px; margin-bottom:4px;">
+                    <div style="flex:1; min-width:120px;">
+                        <label for="startDateTime" style="font-size:10px; color:#666; width:58px;">Start Date :</label>
+                        <input type="datetime-local" id="startDateTime"
+                            style="width:70%; padding:3px; border-radius:3px; border:1px solid #ccc; font-size:10px;"
+                            value="${formatDT(today00)}">
+                    </div>
+
+                    <div style="flex:1; min-width:120px;">
+                        <label for="endDateTime" style="font-size:10px; color:#666; width:58px;">End Date :</label>
+                        <input type="datetime-local" id="endDateTime"
+                            style="width:70%; padding:3px; border-radius:3px; border:1px solid #ccc; font-size:10px;"
+                            value="">
+                    </div>
                 </div>
 
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:10px;">
-                    <button onclick="startReplay()" style="padding:8px; border:none; background:#1565c0; color:white; border-radius:6px; cursor:pointer;">▶ Play</button>
-                    <button onclick="pauseReplay()" style="padding:8px; border:none; background:#d32f2f; color:white; border-radius:6px; cursor:pointer;">⏸ Pause</button>
+                <!-- Apply button -->
+                <button onclick="applyDateFilter()"
+                    style="width:100%; padding:4px; border:none; background:#6a1b9a; color:white;
+                    border-radius:3px; cursor:pointer; margin-bottom:4px; font-size:11px;">
+                    📅 Apply
+                </button>
+
+                <!-- Play/Pause buttons -->
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(70px, 1fr)); gap:4px; margin-bottom:4px;">
+                    <button onclick="startReplay()" style="padding:4px; border:none; background:#1565c0; color:white; border-radius:3px; cursor:pointer; font-size:11px;">▶</button>
+                    <button onclick="pauseReplay()" style="padding:4px; border:none; background:#d32f2f; color:white; border-radius:3px; cursor:pointer; font-size:11px;">⏸</button>
                 </div>
 
-                <button onclick="resetReplay()" style="width:100%; margin-bottom:12px; padding:8px; border:none; background:#2e7d32; color:white; border-radius:6px; cursor:pointer;">⟳ Reset Replay</button>
+                <!-- Reset -->
+                <button onclick="resetReplay()" style="width:100%; margin-bottom:4px; padding:4px; border:none; background:#2e7d32; color:white; border-radius:3px; cursor:pointer; font-size:11px;">⟳ Reset</button>
 
-                <label style="font-size:12px; color:#666;">Animation Speed</label>
-                <select onchange="changeSpeed(this.value)" style="width:100%; padding:8px; margin-top:5px; border-radius:4px; border:1px solid #ccc;">
+                <!-- Speed selector -->
+                <label style="font-size:10px; color:#666; width:58px;">Speed :</label>
+                <select onchange="changeSpeed(this.value)" style="width:70%; padding:4px; margin-top:3px; border-radius:3px; border:1px solid #ccc; font-size:11px;">
                     <option value="2000">🐌 Slow</option>
                     <option value="1000" selected>Normal</option>
                     <option value="400">⚡ Fast</option>
                     <option value="150">🚀 Very Fast</option>
                 </select>
 
-                <hr style="margin:15px 0; border:0; border-top:1px solid #eee;">
-                <div style="font-size:13px; font-weight:bold; margin-bottom:8px;">Vessels</div>
-                <div id="vesselList" style="max-height:150px; overflow-y:auto;"></div>
+                <hr style="margin:6px 0; border:0; border-top:1px solid #eee;">
+
+                <!-- Vessel list -->
+                <div style="font-size:11px; font-weight:bold; margin-bottom:3px;">Vessels</div>
+                <!--<div id="vesselList" -->
+                   <!-- style="display:grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); -->
+                          <!--  gap:4px; font-size:10px;"> -->
+                    <div id="vesselList" 
+                    style="display:grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); 
+                            gap:4px; max-height:80px; overflow-y:auto; font-size:10px; border:1px solid #ddd; padding:3px; border-radius:3px;">
+                
+                     </div>
+                </div>
             `;
 
-            // DRAGGABLE & TOGGLE LOGIC
+            // Step 3: Implement Draggable Logic for the UI Panel
             L.DomEvent.disableClickPropagation(container);
-
-            var isDragging = false;
-            var startX, startY;
-            var currentX = 0, currentY = 0;
-            var initialX, initialY;
-            var xOffset = 0, yOffset = 0;
+            var isDragging = false; var startX, startY; var currentX = 0, currentY = 0;
+            var initialX, initialY; var xOffset = 0, yOffset = 0;
 
             function dragStart(e) {
-                if (e.type === "touchstart") {
-                    initialX = e.touches[0].clientX - xOffset;
-                    initialY = e.touches[0].clientY - yOffset;
-                } else {
-                    initialX = e.clientX - xOffset;
-                    initialY = e.clientY - yOffset;
-                }
-                
+                if (e.type === "touchstart") { initialX = e.touches[0].clientX - xOffset; initialY = e.touches[0].clientY - yOffset; }
+                else { initialX = e.clientX - xOffset; initialY = e.clientY - yOffset; }
                 if (e.target === toggleBtn || toggleBtn.contains(e.target)) {
                     isDragging = true;
                     startX = (e.type === "touchstart") ? e.touches[0].clientX : e.clientX;
                     startY = (e.type === "touchstart") ? e.touches[0].clientY : e.clientY;
                 }
             }
-
             function dragEnd(e) {
-                initialX = currentX;
-                initialY = currentY;
-                isDragging = false;
-
-                // If it was a click (not a drag), toggle the panel
+                initialX = currentX; initialY = currentY; isDragging = false;
                 var endX = (e.type === "touchend") ? e.changedTouches[0].clientX : e.clientX;
                 var endY = (e.type === "touchend") ? e.changedTouches[0].clientY : e.clientY;
-                
                 if (Math.abs(endX - startX) < 5 && Math.abs(endY - startY) < 5) {
                     var panel = document.getElementById('vesselControlPanel');
                     panel.style.display = (panel.style.display === "none") ? "block" : "none";
                 }
             }
-
             function drag(e) {
                 if (isDragging) {
                     e.preventDefault();
-                    if (e.type === "touchmove") {
-                        currentX = e.touches[0].clientX - initialX;
-                        currentY = e.touches[0].clientY - initialY;
-                    } else {
-                        currentX = e.clientX - initialX;
-                        currentY = e.clientY - initialY;
-                    }
-
-                    xOffset = currentX;
-                    yOffset = currentY;
-
-                    setTranslate(currentX, currentY, container);
+                    if (e.type === "touchmove") { currentX = e.touches[0].clientX - initialX; currentY = e.touches[0].clientY - initialY; }
+                    else { currentX = e.clientX - initialX; currentY = e.clientY - initialY; }
+                    xOffset = currentX; yOffset = currentY;
+                    container.style.transform = "translate3d(" + currentX + "px, " + currentY + "px, 0)";
                 }
             }
+           
+            toggleBtn.addEventListener("touchstart", dragStart, false); document.addEventListener("touchend", dragEnd, false); document.addEventListener("touchmove", drag, false);
+            toggleBtn.addEventListener("mousedown", dragStart, false); document.addEventListener("mouseup", dragEnd, false); document.addEventListener("mousemove", drag, false);
 
-            function setTranslate(xPos, yPos, el) {
-                el.style.transform = "translate3d(" + xPos + "px, " + yPos + "px, 0)";
-            }
-
-            toggleBtn.addEventListener("touchstart", dragStart, false);
-            document.addEventListener("touchend", dragEnd, false);
-            document.addEventListener("touchmove", drag, false);
-
-            toggleBtn.addEventListener("mousedown", dragStart, false);
-            document.addEventListener("mouseup", dragEnd, false);
-            document.addEventListener("mousemove", drag, false);
-
-            // Close button logic
+            // Step 4: Fix 'X' Close button functionality
             setTimeout(() => {
                 var closeBtn = document.getElementById('closePanelBtn');
-                if(closeBtn) {
-                    L.DomEvent.on(closeBtn, 'click', function() {
+                if (closeBtn) {
+                    L.DomEvent.on(closeBtn, 'click', function(e) {
+                        L.DomEvent.stopPropagation(e);
                         document.getElementById('vesselControlPanel').style.display = "none";
                     });
                 }
@@ -264,227 +244,214 @@
 
             return container;
         };
-
         controlPanel.addTo(map);
 
-        // ======================================================
-        // CREATE VESSELS
-        // ======================================================
+        // Step 4: Map Initialization - Create Vessel Objects (Markers + Lines)
         var allPoints = [];
-
+        var vesselSelect = document.getElementById('vesselSelect');
+        console.log(`Initializing map with ${vessels.length} vessels. vesselSelect element:`, vesselSelect);
         vessels.forEach((v, index) => {
-
             if(v.route.length === 0) return;
-
-            // USE THE CURRENT INDEX (which we set to the end in Python)
             let current = v.route[v.currentIndex];
 
-            let marker = L.marker(
-                [current.lat, current.lng],
-                {
-                    icon:createIcon(v.color)
-                }
-            ).addTo(map);
+            // 1. Marker
+            let marker = L.marker([current.lat, current.lng], { icon:createIcon(v.color) }).addTo(map);
+            marker.bindPopup(getPopupHTML(current, v.name));
 
-            marker.bindPopup(
-                getPopupHTML(current, v.name)
-            );
+            // 2. Historical Trace (Dashed Line)
+            let fullPolyline = L.polyline(v.route.map(p => [p.lat, p.lng]), { color:v.color, weight:1, opacity:0.25, dashArray:'6,6' }).addTo(map);
 
-            // FULL ROUTE POLYLINE (Historical Trace)
-            let fullPolyline = L.polyline(
-                v.route.map(p => [p.lat, p.lng]),
-                {
-                    color:v.color,
-                    weight:2,
-                    opacity:0.25,
-                    dashArray:'6,6'
-                }
-            ).addTo(map);
+            // 3. Live Replay Path (Solid Line)
+            let replayPolyline = L.polyline(v.route.slice(0, v.currentIndex + 1).map(p => [p.lat, p.lng]), { color:v.color, weight:2, opacity:0.9 }).addTo(map);
 
-            // LIVE REPLAY LINE (Shows history up to the current point)
-            let replayPath = v.route
-                .slice(0, v.currentIndex + 1)
-                .map(p => [p.lat, p.lng]);
+            // 4. Store for management
+            vesselObjects.push({ vkey: v.vkey, marker: marker, fullPolyline: fullPolyline, replayPolyline: replayPolyline, data: v });
 
-            let replayPolyline = L.polyline(
-                replayPath,
-                {
-                    color:v.color,
-                    weight:2,
-                    opacity:0.9
-                }
-            ).addTo(map);
-
-            vesselObjects.push({
-                marker:marker,
-                fullPolyline:fullPolyline,
-                replayPolyline:replayPolyline,
-                data:v
-            });
-
-            // VESSEL TOGGLE
-            let vesselList = document.getElementById('vesselList');
-
-            vesselList.innerHTML += `
+            // 5. Build UI list entry
+            document.getElementById('vesselList').innerHTML += `
                 <div style="margin-bottom:6px;">
-                    <input
-                        type="checkbox"
-                        checked
-                        onchange="toggleVessel(${index}, this.checked)"
-                    >
-                    <span style="color:${v.color};font-weight:bold;">
-                        ${v.name}
-                    </span>
+                    <input type="checkbox" checked onchange="toggleVessel(${index}, this.checked)">
+                    <span style="color:${v.color};font-weight:bold;">${v.name}</span>
                 </div>
             `;
+            
+            // 6. Populate vessel select
+            if (vesselSelect) {
+                let opt = document.createElement('option');
+                opt.value = v.vkey;
+                opt.textContent = v.name;
+                vesselSelect.appendChild(opt);
+                console.log(`Added vessel to select: ${v.name} (vkey: ${v.vkey}) vesselSelect now has ${vesselSelect.options.length} options.`);
+            }
 
-            v.route.forEach(p => {
-                allPoints.push([p.lat, p.lng]);
-            });
-
+            v.route.forEach(p => allPoints.push([p.lat, p.lng]));
         });
 
-        // ======================================================
-        // FIT MAP
-        // ======================================================
-        if(allPoints.length > 0) {
-            map.fitBounds(allPoints, {
-                padding:[40,40]
-            });
-        }
+        // Step 5: Automatically fit map view to all ships
+        if(allPoints.length > 0) map.fitBounds(allPoints, { padding:[40,40] });
 
-        // ======================================================
-        // MOVE
-        // ======================================================
+        /**
+         * ANIMATION: Moves vessels step-by-step through their historical route.
+         */
         function moveVessels() {
-
             vesselObjects.forEach(obj => {
-
                 let v = obj.data;
-
-                if(!v.visible) return;
-
-                if(v.route.length <= 1) return;
-
-                if(v.currentIndex >= v.route.length - 1)
-                    return;
-
+                if(!v.visible || v.route.length <= 1 || v.currentIndex >= v.route.length - 1) return;
                 v.currentIndex++;
-
                 let next = v.route[v.currentIndex];
-
-                obj.marker.setLatLng([
-                    next.lat,
-                    next.lng
-                ]);
-
-                // REPLAY LINE
-                let replayPath = v.route
-                    .slice(0, v.currentIndex + 1)
-                    .map(p => [p.lat, p.lng]);
-
-                obj.replayPolyline.setLatLngs(replayPath);
-
-                if(obj.marker.isPopupOpen()) {
-
-                    obj.marker.setPopupContent(
-                        getPopupHTML(next, v.name)
-                    );
-
-                }
-
+                obj.marker.setLatLng([next.lat, next.lng]);
+                obj.replayPolyline.setLatLngs(v.route.slice(0, v.currentIndex + 1).map(p => [p.lat, p.lng]));
+                if(obj.marker.isPopupOpen()) obj.marker.setPopupContent(getPopupHTML(next, v.name));
             });
-
         }
 
-        // ======================================================
-        // REPLAY FUNCTIONS
-        // ======================================================
-        window.startReplay = function() {
+        // --- GLOBAL CONTROL WINDOW FUNCTIONS ---
+        window.applyDateFilter = function () {
+            var startDate = document.getElementById("startDateTime").value;
+            var endDate = document.getElementById("endDateTime").value || "";
+            //var vesselId = document.getElementById("vesselSelect").value;
+            //console.log(`Applying filter - Start: ${startDate}, End: ${endDate}, VesselID: ${vesselId}`);
+            //if (!startDate || !endDate) {
+            //    alert("Please select both Start and End DateTime");
+            //    return;
+            //}
 
-            if(moveTimer)
-                clearInterval(moveTimer);
+            // Stop current replay
+            if (moveTimer) clearInterval(moveTimer);
 
-            moveTimer = setInterval(
-                moveVessels,
-                animationSpeed
-            );
+            var url = `/user_map_auth/vessel_filter_json/?start_date=${encodeURIComponent(startDate)}&end_date=${encodeURIComponent(endDate)}`;
+            //if (vesselId = document.getElementById("vesselSelect").value) url += `&vessel_id=${encodeURIComponent(vesselId)}`;
 
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Filtered Data:", data);
+                    //if (!data.vessels || data.vessels.length === 0) {
+                    //    alert("No data found for the selected range.");
+                    //    return;
+                    //}
+
+                    // Clear old vessels
+                    vesselObjects.forEach(obj => {
+                        map.removeLayer(obj.marker);
+                        map.removeLayer(obj.fullPolyline);
+                        map.removeLayer(obj.replayPolyline);
+                    });
+                    vesselObjects = [];
+                    document.getElementById('vesselList').innerHTML = "";
+
+                    // Re-initialize with new data
+                    var newPoints = [];
+                    data.vessels.forEach((v, index) => {
+                        if(!v.route || v.route.length === 0) return;
+                        v.currentIndex = 0;
+                        let first = v.route[0];
+
+                        let marker = L.marker([first.lat, first.lng], { icon:createIcon(v.color) }).addTo(map);
+                        marker.bindPopup(getPopupHTML(first, v.name));
+
+                        let fullPolyline = L.polyline(v.route.map(p => [p.lat, p.lng]), { color:v.color, weight:1, opacity:0.25, dashArray:'6,6' }).addTo(map);
+                        let replayPolyline = L.polyline([[first.lat, first.lng]], { color:v.color, weight:2, opacity:0.9 }).addTo(map);
+
+                        vesselObjects.push({ vkey: v.vkey, marker: marker, fullPolyline: fullPolyline, replayPolyline: replayPolyline, data: v });
+
+                        document.getElementById('vesselList').innerHTML += `
+                            <div style="margin-bottom:6px;">
+                                <input type="checkbox" checked onchange="toggleVessel(${index}, this.checked)">
+                                <span style="color:${v.color};font-weight:bold;">${v.name}</span>
+                            </div>
+                        `;
+                        v.route.forEach(p => newPoints.push([p.lat, p.lng]));
+                    });
+
+                    if(newPoints.length > 0) map.fitBounds(newPoints, { padding:[40,40] });
+                    startReplay();
+                })
+                .catch(error => {
+                    console.error("Error fetching filtered data:", error);
+                });
         }
-
-        window.pauseReplay = function() {
-
-            clearInterval(moveTimer);
-
-        }
-
+        window.startReplay = function() { if(moveTimer) clearInterval(moveTimer); moveTimer = setInterval(moveVessels, animationSpeed); }
+        window.pauseReplay = function() { clearInterval(moveTimer); }
         window.resetReplay = function() {
-
             clearInterval(moveTimer);
-
             vesselObjects.forEach(obj => {
-
-                let v = obj.data;
-
-                v.currentIndex = 0;
-
-                let first = v.route[0];
-
-                obj.marker.setLatLng([
-                    first.lat,
-                    first.lng
-                ]);
-
-                obj.replayPolyline.setLatLngs([
-                    [first.lat, first.lng]
-                ]);
-
+                obj.data.currentIndex = 0; let first = obj.data.route[0];
+                obj.marker.setLatLng([first.lat, first.lng]);
+                obj.replayPolyline.setLatLngs([[first.lat, first.lng]]);
             });
-
         }
-
-        // ======================================================
-        // SPEED
-        // ======================================================
-        window.changeSpeed = function(speed) {
-
-            animationSpeed = parseInt(speed);
-
-            startReplay();
-
-        }
-
-        // ======================================================
-        // SHOW/HIDE VESSEL
-        // ======================================================
+        window.changeSpeed = function(speed) { animationSpeed = parseInt(speed); startReplay(); }
         window.toggleVessel = function(index, checked) {
-
-            let obj = vesselObjects[index];
-
-            obj.data.visible = checked;
-
-            if(checked) {
-
-                map.addLayer(obj.marker);
-                map.addLayer(obj.fullPolyline);
-                map.addLayer(obj.replayPolyline);
-
-            }
-            else {
-
-                map.removeLayer(obj.marker);
-                map.removeLayer(obj.fullPolyline);
-                map.removeLayer(obj.replayPolyline);
-
-            }
-
+            let obj = vesselObjects[index]; obj.data.visible = checked;
+            if(checked) { map.addLayer(obj.marker); map.addLayer(obj.fullPolyline); map.addLayer(obj.replayPolyline); }
+            else { map.removeLayer(obj.marker); map.removeLayer(obj.fullPolyline); map.removeLayer(obj.replayPolyline); }
         }
 
-        // ======================================================
-        // AUTO START
-        // ======================================================
+        /**
+         * LIVE POLLING: This is the core logic for the 30-second incremental updates.
+         * It appends new coordinates and telemetry to existing ship paths.
+         */
+        function updateVessels(vessels) {
+            vessels.forEach((v) => {
+                if (!v.route || v.route.length === 0) return;
+                let obj = vesselObjects.find(o => o.vkey === v.vkey || o.data.name === v.name);
+
+                if (!obj) {
+                    // NEW VESSEL: Dynamically create all map components
+                    let first = v.route[0];
+                    let marker = L.marker([first.lat, first.lng], { icon: createIcon(v.color) }).addTo(map);
+                    marker.bindPopup(getPopupHTML(first, v.name));
+                    let fullPolyline = L.polyline(v.route.map(p => [p.lat, p.lng]), { color: v.color, weight: 1, opacity: 0.25, dashArray: '6,6' }).addTo(map);
+                    let replayPolyline = L.polyline(v.route.map(p => [p.lat, p.lng]), { color: v.color, weight: 2, opacity: 0.9 }).addTo(map);
+
+                    obj = { marker: marker, fullPolyline: fullPolyline, replayPolyline: replayPolyline, data: v, vkey: v.vkey };
+                    vesselObjects.push(obj);
+                    let newIdx = vesselObjects.length - 1;
+                    document.getElementById('vesselList').innerHTML += `
+                        <div style="margin-bottom:6px;">
+                            <input type="checkbox" checked onchange="toggleVessel(${newIdx}, this.checked)">
+                            <span style="color:${v.color};font-weight:bold;">${v.name}</span>
+                        </div>
+                    `;
+                } else {
+                    // EXISTING VESSEL: Append new data points
+                    let pointsToAdd = v.route.filter(newPt => !obj.data.route.some(oldPt => oldPt.DateTime === newPt.DateTime));
+                    
+                    if (pointsToAdd.length > 0) {
+                        console.log(`Adding ${pointsToAdd.length} new points for ${v.name}`);
+                        pointsToAdd.forEach(newPt => {
+                            obj.data.route.push(newPt);
+                            obj.fullPolyline.addLatLng([newPt.lat, newPt.lng]);
+                            obj.replayPolyline.addLatLng([newPt.lat, newPt.lng]);
+                        });
+
+                        // Update marker to the LATEST position
+                        let latestPt = pointsToAdd[pointsToAdd.length - 1];
+                        obj.data.currentIndex = obj.data.route.length - 1;
+                        obj.marker.setLatLng([latestPt.lat, latestPt.lng]);
+                        
+                        // ALWAYS refresh popup content with latest telemetry
+                        obj.marker.setPopupContent(getPopupHTML(latestPt, v.name));
+                        
+                        // If popup is open, ensure it stays updated
+                        if(obj.marker.isPopupOpen()) {
+                            obj.marker.openPopup();
+                        }
+                    }
+                }
+            });
+        }
+
+        // Start the 30-second polling cycle
+        setInterval(() => {
+            fetch(`/user_map_auth/vessel_data_json/?start_date=${encodeURIComponent(document.getElementById("startDateTime").value)}&end_date=${encodeURIComponent(document.getElementById("endDateTime").value || "")}`)
+                .then(res => res.json())
+                .then(data => { if (data.vessels) updateVessels(data.vessels); })
+                .catch(err => console.error("Live update failed:", err));
+        }, 30000);
+
+        // Auto-start the historical replay on load
         startReplay();
-
     };
-
     </script>

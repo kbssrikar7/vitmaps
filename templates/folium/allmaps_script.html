@@ -1,11 +1,20 @@
     <script>
+    /**
+     * ALLMAPS SCRIPT (Public View Replay)
+     * This script handles the automated historical replay for all vessels in the public view.
+     * It continuously loops through the tracking points for every ship.
+     */
     window.onload = function() {
         var map = {{ map_name }};
         var vessels = {{ vessels_json|safe }};
         var markers = [];
 
+        // Step 1: Initialize Zoom Control
         L.control.zoom({ position: 'bottomleft' }).addTo(map);
 
+        /**
+         * Helper: Generates consistent HTML for the marker popups.
+         */
         function getPopupHTML(pt, vName) {
             let dt = pt.DateTime.includes('T') ? pt.DateTime.replace('T', ' ').split('.')[0] : pt.DateTime;
             return `
@@ -37,6 +46,9 @@
             </div>`;
         }
 
+        /**
+         * Helper: Creates a custom DivIcon that looks like a ship and rotates.
+         */
         function createIcon(color) {
             return L.divIcon({
                 className: "",
@@ -54,7 +66,6 @@
                         background:linear-gradient(135deg, rgba(255,255,255,0.28), ${color} 38%, rgba(0,0,0,0.2));
                         border:2px solid #ffffff;
                         border-radius:18px 5px 5px 18px;
-                        box-shadow:inset 0 1px 2px rgba(255,255,255,0.45), inset -3px 0 3px rgba(0,0,0,0.18);
                     "></div>
                     <div style="
                         position:absolute;
@@ -74,7 +85,6 @@
                         height:6px;
                         background:rgba(255,255,255,0.9);
                         border-radius:3px;
-                        box-shadow:8px 0 0 rgba(255,255,255,0.55);
                     "></div>
                 </div>`,
                 iconSize: [34, 22],
@@ -82,10 +92,11 @@
             });
         }
 
+        // Step 2: Initialize Markers for each vessel
         vessels.forEach(v => {
             if (v.route.length === 0) return;
             
-            // USE CURRENT INDEX (Live position)
+            // Start at the last known position (or the current loop index)
             let current = v.route[v.currentIndex || 0];
             let marker = L.marker([current.lat, current.lng], { icon: createIcon(v.color) }).addTo(map);
 
@@ -98,18 +109,26 @@
             markers.push({ marker: marker, data: v });
         });
 
+        // Step 3: Replay/Movement logic
         var moveInterval = 1000;
         var moveTimer = null;
 
+        /**
+         * Global function to adjust the animation speed.
+         */
         window.setMapSpeed = function(ms) {
             moveInterval = parseInt(ms);
             if (moveTimer) clearInterval(moveTimer);
 
+            // Replay loop
             moveTimer = setInterval(function() {
                 markers.forEach(obj => {
                     let v = obj.data;
+                    // Increment the loop and wrap around to the start
                     v.currentIndex = (v.currentIndex + 1) % v.route.length;
                     let next = v.route[v.currentIndex];
+                    
+                    // Move marker and update popup data live
                     obj.marker.setLatLng([next.lat, next.lng]);
 
                     if (obj.marker.getPopup()) {
@@ -119,6 +138,7 @@
             }, moveInterval);
         };
 
+        // Start the automated replay loop immediately
         window.setMapSpeed(1000);
     };
     </script>
