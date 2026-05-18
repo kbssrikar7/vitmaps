@@ -223,7 +223,7 @@ def get_auth_vessels_data_LiveData(request, start_date=None, end_date=None, targ
         logger.info(f"===>API GET URL: {assoc_url}")
         assoc_res = requests.get(assoc_url, headers=headers, timeout=30)
         logger.info(f"===>API response status: {assoc_res.status_code}")
-        vessels_raw, new_records = get_auth_vessels_data(assoc_res, request, start_date, end_date)        
+        vessels_raw, new_records = get_auth_vessels_data(assoc_res, request, start_date, end_date)       
         return vessels_raw, new_records
     except Exception:
         logger.exception("API fetch failed")
@@ -280,7 +280,7 @@ def get_auth_vessels_data(assoc_res,request, start_date=None, end_date=None):
 
     except Exception:
         logger.exception("API fetch failed")
-        return vessels_raw, new_records
+        return [], []
 
     logger.info(
         f"get_auth_vessels_data: returning {len(vessels_raw)} total records, {len(new_records)} new records"
@@ -345,12 +345,14 @@ def user_map_auth_view(request):
     logger.info("user_map_auth_view: request started for user_id: " + str(request.session.get("api_user_id")))
     # Step 1: Check if we have data, otherwise load defaults (Today 00:00 to Now)
     if not request.session.get("auth_vessels_data"):
+        # This will populate session with today's data
         logger.info("user_map_auth_view: No session data found, performing initial fetch for today's data")
         today_start = datetime.combine(datetime.now().date(), dt_time.min).strftime('%Y-%m-%dT%H:%M')
         logger.info(f"user_map_auth_view: Fetching data from {today_start} to now")
-        now_str = datetime.now().strftime('%Y-%m-%dT%H:%M')
+        now_str = "" #datetime.now().strftime('%Y-%m-%dT%H:%M')
         logger.info(f"user_map_auth_view: Current time for fetch end: {now_str}")
         vessels_raw, _ = get_vessels_data_filtering(request, start_date=today_start, end_date=now_str)
+        vessels_raw, _ = get_auth_vessels_data_LiveData(request) #To get the Latest data for the all vessels
         logger.info(f"user_map_auth_view: Initial fetch returned {len(vessels_raw)} records")
     else:
         vessels_raw = request.session.get("auth_vessels_data", [])
@@ -417,6 +419,7 @@ def vessel_filter_json(request):
     logger.info("vessel_filter_json============>vessel_id : " + str(vessel_id))
     logger.info("vessel_filter_json: Initiating filtered fetch")
     vessels_raw, _ = get_vessels_data_filtering(request, start_date=start_date, end_date=end_date, target_vessel_id=vessel_id)
+    vessels_raw, _ = get_auth_vessels_data_LiveData(request) #To get the Latest data for the all vessels
     logger.info(f"vessel_filter_json: Filtered fetch returned {len(vessels_raw)} records")
     vessel_js_array = process_auth_vessels_to_js(vessels_raw)
     logger.info(f"vessel_filter_json: Processed {len(vessel_js_array)} vessels for JS response")
