@@ -1,6 +1,6 @@
 # tracking_app/urls.py
 from django.urls import path
-from . import views
+from . import views, api_views
 
 # Defining URL patterns for the tracking application
 urlpatterns = [
@@ -10,7 +10,6 @@ urlpatterns = [
     
     # Chrome DevTools specific protocol configuration
     path('.well-known/appspecific/com.chrome.devtools.json', views.chrome_devtools_config),
-    path('vessel_search/', views.vessel_search_view, name='vessel_search'),
     
     # PRIVATE ROUTES (Requires Login)
     # Main authenticated map view for private fleets
@@ -32,9 +31,6 @@ urlpatterns = [
     # User registration
     path('register/', views.register_view, name='register'),
 
-    # APIs
-    #path('api/update/', api_views.update_location),
-    #path('api/latest/<str:device_id>/', api_views.latest_location),
     # REST API ENDPOINTS (For mobile/device updates)
     # Update current location for a device
     path('api/update/', api_views.update_location),
