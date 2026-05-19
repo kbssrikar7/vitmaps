@@ -296,19 +296,24 @@
                         }
                     });
 
+                    if (!response.ok) {
+                        alert("Login failed. Please refresh the page and try again.");
+                        return;
+                    }
+
                     const data = await response.json();
 
                     if (data.success) {
                         loginModal.hide();
-                        window.location.reload();
+                        window.location.href = data.redirect_url;
                     } else {
                         loginModal.hide();
-                        alert("invalid credentials login again");
+                        alert("Invalid credentials. Please try again.");
                         loginModal.show();
                     }
                 } catch (error) {
                     console.error("Error during login:", error);
-                    alert("An error occurred. Please try again.");
+                    alert("An error occurred. Please refresh the page and try again.");
                 }
             };
 

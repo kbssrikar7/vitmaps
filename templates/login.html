@@ -1,0 +1,74 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login – Vitality SeaWays</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <style>
+        body { background: #eef2f6; height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .login-card { background: white; border-radius: 16px; box-shadow: 0 8px 30px rgba(0,0,0,0.12); padding: 40px; width: 100%; max-width: 400px; }
+        .login-card img { height: 48px; margin-bottom: 24px; }
+        .btn-primary-custom { background: #2f4f8f; border: none; border-radius: 8px; padding: 10px; font-size: 15px; }
+        .btn-primary-custom:hover { background: #1a3560; }
+        #errorMsg { display: none; }
+    </style>
+</head>
+<body>
+    <div class="login-card text-center">
+        <img src="/static/images/VitalitySeaWaysLLP.png" alt="Logo">
+        <h5 class="mb-4" style="color:#2f4f8f;">Fleet Tracking Login</h5>
+
+        <div id="errorMsg" class="alert alert-danger mb-3"></div>
+
+        <form id="loginForm">
+            {% csrf_token %}
+            <div class="mb-3 text-start">
+                <input type="text" name="username" class="form-control" placeholder="Username" required
+                    style="border-radius:8px; padding:10px;">
+            </div>
+            <div class="mb-3 text-start">
+                <input type="password" name="password" class="form-control" placeholder="Password" required
+                    style="border-radius:8px; padding:10px;">
+            </div>
+            <button type="submit" class="btn btn-primary-custom w-100 text-white">Sign In</button>
+        </form>
+    </div>
+
+    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+    <script>
+        document.getElementById('loginForm').onsubmit = async function(e) {
+            e.preventDefault();
+            const errorMsg = document.getElementById('errorMsg');
+            errorMsg.style.display = 'none';
+
+            try {
+                const response = await fetch("{% url 'login' %}", {
+                    method: "POST",
+                    body: new FormData(this),
+                    headers: { "X-Requested-With": "XMLHttpRequest" }
+                });
+
+                if (!response.ok) {
+                    errorMsg.textContent = "Server error. Please try again.";
+                    errorMsg.style.display = 'block';
+                    return;
+                }
+
+                const data = await response.json();
+                if (data.success) {
+                    const next = new URLSearchParams(window.location.search).get('next') || data.redirect_url;
+                    window.location.href = next;
+                } else {
+                    errorMsg.textContent = data.error || "Invalid credentials. Please try again.";
+                    errorMsg.style.display = 'block';
+                }
+            } catch (err) {
+                errorMsg.textContent = "An error occurred. Please try again.";
+                errorMsg.style.display = 'block';
+            }
+        };
+    </script>
+</body>
+</html>
