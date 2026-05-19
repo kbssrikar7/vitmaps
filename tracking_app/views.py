@@ -435,8 +435,10 @@ def vessel_search_view(request):
     )
 
     if not request.user.is_authenticated:
-        return redirect('login')
-
+        logger.info("Authenticated ............................1111")
+        return redirect('login.html')
+    
+    logger.info("Authenticated ............................2222222")
     vessel_id = request.session.get("api_user_id")
     logger.info("Vessel ID: %s", vessel_id)
     bearer_token = request.session.get("bearer_token")

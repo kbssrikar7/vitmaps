@@ -22,7 +22,7 @@ urlpatterns = [
     path('user_map_auth/vessel_filter_json/', views.vessel_filter_json, name='vessel_filter_json'),
 
     # vessels search details page
-    path('user_map_auth/vessel_search/', views.vessel_search_view, name='vessel_search'),
+    path('vessel_search/', views.vessel_search_view, name='vessel_search'),
     
     # AUTHENTICATION ROUTES
     # API-based login system
