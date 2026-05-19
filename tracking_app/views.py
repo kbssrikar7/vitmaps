@@ -87,12 +87,11 @@ def allmaps_view(request):
     m.get_root().header.add_child(folium.Element('<style>html,body{height:100%;margin:0;padding:0}</style>'))
 
     # Step 4: Add multiple Tile Layers (Base Maps)
-    folium.TileLayer(tiles="https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}", attr="Tiles © Esri", name="Esri World Street Map (English)", show=True).add_to(m)
-    folium.TileLayer(tiles="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", attr="Tiles © Esri", name="Esri World Imagery (Satellite)", show=False).add_to(m)
-    folium.TileLayer(tiles="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", attr="© OpenStreetMap contributors", name="OpenStreetMap", show=False).add_to(m)
-    folium.TileLayer(tiles="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", attr="© Carto", name="Carto Light", show=False).add_to(m)
-    folium.TileLayer(tiles="https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png", attr="© Carto", name="Light No Labels", show=False).add_to(m)
+    folium.TileLayer(tiles="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", attr="© OpenStreetMap contributors", name="OpenStreetMap", show=True).add_to(m)
     folium.TileLayer(tiles="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", attr="© Carto", name="Carto Voyager", show=False).add_to(m)
+    folium.TileLayer(tiles="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", attr="© Carto", name="Carto Light", show=False).add_to(m)
+    folium.TileLayer(tiles="https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}", attr="Tiles © Esri", name="Esri World Street Map", show=False).add_to(m)
+    folium.TileLayer(tiles="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", attr="Tiles © Esri", name="Esri Satellite", show=False).add_to(m)
 
     # Step 5: Add Layer Control for user to switch base maps
     folium.LayerControl(position="bottomright").add_to(m)
@@ -367,12 +366,11 @@ def user_map_auth_view(request):
     m.get_root().header.add_child(folium.Element('<style>html,body{height:100%;margin:0;padding:0}</style>'))
 
     # Step 3: Add Tile Layers
-    folium.TileLayer(tiles="https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}", attr="Tiles © Esri", name="Esri World Street Map (English)", show=True).add_to(m)
-    folium.TileLayer(tiles="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", attr="Tiles © Esri", name="Esri World Imagery (Satellite)", show=False).add_to(m)
-    folium.TileLayer(tiles="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", attr="© OpenStreetMap contributors", name="OpenStreetMap", show=False).add_to(m)
-    folium.TileLayer(tiles="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", attr="© Carto", name="Carto Light", show=False).add_to(m)
-    folium.TileLayer(tiles="https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png", attr="© Carto", name="Light No Labels", show=False).add_to(m)
+    folium.TileLayer(tiles="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", attr="© OpenStreetMap contributors", name="OpenStreetMap", show=True).add_to(m)
     folium.TileLayer(tiles="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", attr="© Carto", name="Carto Voyager", show=False).add_to(m)
+    folium.TileLayer(tiles="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", attr="© Carto", name="Carto Light", show=False).add_to(m)
+    folium.TileLayer(tiles="https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}", attr="Tiles © Esri", name="Esri World Street Map", show=False).add_to(m)
+    folium.TileLayer(tiles="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", attr="Tiles © Esri", name="Esri Satellite", show=False).add_to(m)
 
     folium.LayerControl(position="bottomright").add_to(m)
 
