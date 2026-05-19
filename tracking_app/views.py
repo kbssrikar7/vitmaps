@@ -426,3 +426,130 @@ def vessel_filter_json(request):
     #logger.info(f"vessel_filter_json: Sample vessel data for debugging: {vessel_js_array[0] if vessel_js_array else 'No vessels'}")
     #logger.info("vessel_filter_json: request completed: returning JSON response :"+JsonResponse({"vessels": vessel_js_array}).content.decode())
     return JsonResponse({"vessels": vessel_js_array})
+
+def vessel_search_view(request):
+
+    logger.info(
+        "vessel_search_view: user_authenticated=%s",
+        request.user.is_authenticated
+    )
+
+    if not request.user.is_authenticated:
+        return redirect('login')
+
+    vessel_id = request.session.get("api_user_id")
+    logger.info("Vessel ID: %s", vessel_id)
+    bearer_token = request.session.get("bearer_token")
+    logger.info("Bearer token: %s", bearer_token)
+
+    api_url = (
+        f"https://shiptrackingapiauth-787201059405.asia-south2.run.app/"
+        f"GetAllVessels/{vessel_id}"
+    )
+    logger.info("api_url: %s", api_url)
+    headers = {
+        "Authorization": f"Bearer {bearer_token}",
+        "Accept": "application/json"
+    }
+
+    vessels = []
+    total_vessels_count = 0
+    try:
+
+        response = requests.get(
+            api_url,
+            headers=headers,
+            timeout=10
+        )
+
+        logger.info(
+            "API STATUS CODE = %s",
+            response.status_code
+        )
+             
+        if response.status_code == 200:
+
+            api_data = response.json()
+            total_vessels_count = api_data.get('count', 0) 
+            logger.info("API RESPONSE = %s", api_data)
+
+            # API may return dict or list
+            # CASE 1 -> API returns LIST
+            if isinstance(api_data, list):
+
+                vessels = api_data   
+
+            # CASE 2 -> API returns DICT
+            elif isinstance(api_data, dict):
+
+                # If data key exists
+                if 'data' in api_data:
+
+                    if isinstance(api_data['data'], list):
+                        vessels = api_data['data']
+
+                    elif isinstance(api_data['data'], dict):
+                        vessels = [api_data['data']]
+
+                else:
+                    vessels = [api_data]
+
+        else:
+            logger.warning(
+                "API FAILED STATUS=%s",
+                response.status_code
+            )
+
+    except Exception as e:
+
+        logger.exception("VESSEL API ERROR")
+
+    # Aplly Filters
+
+    search = request.GET.get('search', '').strip()
+    vessel_type = request.GET.get('type', '').strip()
+    flag = request.GET.get('flag', '').strip()
+
+    # SEARCH FILTER
+    if search:
+
+        vessels = [
+            vessel for vessel in vessels
+            if search.lower() in str(
+                vessel.get('VesselName', '')
+            ).lower()
+        ]
+ 
+    logger.info(vessels)
+    
+    # TYPE FILTER
+    if vessel_type and vessel_type != 'All Types':
+
+        vessels = [
+            vessel for vessel in vessels
+            if vessel.get('VesselType', '') == vessel_type
+        ]
+
+    # FLAG FILTER
+    if flag and flag != 'All Flags':
+
+        vessels = [
+            vessel for vessel in vessels
+            if vessel.get('Flag', '') == flag
+        ]
+
+    context = {
+        'vessels': vessels,
+        'total_vessels_count': total_vessels_count,
+        'count': len(vessels),
+        'search': search,
+        'selected_type': vessel_type,
+        'selected_flag': flag,
+    }
+
+    logger.info("TOTAL VESSELS = %s", len(vessels))
+    return render(
+        request,
+        'vessel_search.html',
+        context
+    )
