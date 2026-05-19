@@ -84,6 +84,7 @@ def allmaps_view(request):
 
     # Step 3: Initialize Folium Map centered on India/Bay of Bengal
     m = folium.Map(location=[17.15, 82.4], zoom_start=6, control_scale=True, zoom_control=False, tiles=None)
+    m.get_root().header.add_child(folium.Element('<style>html,body{height:100%;margin:0;padding:0}</style>'))
 
     # Step 4: Add multiple Tile Layers (Base Maps)
     folium.TileLayer(tiles="https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}", attr="Tiles © Esri", name="Esri World Street Map (English)", show=True).add_to(m)
@@ -363,6 +364,7 @@ def user_map_auth_view(request):
     
     # Step 2: Initialize Map
     m = folium.Map(location=[17.15, 82.4], zoom_start=6, control_scale=True, zoom_control=False, tiles=None)
+    m.get_root().header.add_child(folium.Element('<style>html,body{height:100%;margin:0;padding:0}</style>'))
 
     # Step 3: Add Tile Layers
     folium.TileLayer(tiles="https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}", attr="Tiles © Esri", name="Esri World Street Map (English)", show=True).add_to(m)
